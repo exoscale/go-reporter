@@ -37,8 +37,8 @@ reporting:
     console: true
     syslog: false
     files:
-      - /var/log/nidwald/nidwald.log
-      - json:/var/log/nidwald/nidwald.log
+      - /var/log/project/project.log
+      - json:/var/log/project/project.log
 ```
 
 ``level`` specify the maximum log level to use. It can be one of:
@@ -94,11 +94,11 @@ The ``file`` output supports the following keys:
 
 At each tick, the current metric values will be written to the
 specified file as a one-line JSON object. For debug purpose, it's
-possible to filter the metrics concerning only *Nidwald*
+possible to filter the metrics concerning only *project*
 by using the following command::
 
-    tailf /var/log/nidwald/metrics \
-      | jq 'with_entries(select(.key | startswith("nidwald.")))'
+    tailf /var/log/project/metrics \
+      | jq 'with_entries(select(.key | startswith("project.")))'
 
 The ``collectd`` output supports the following keys:
 
@@ -129,7 +129,7 @@ Crash reporting is done with Sentry. Here is an example configuration:
 ```yaml
 reporting:
   sentry:
-    dsn: https://public:secret@sentry.example.com/nidwald
+    dsn: https://public:secret@sentry.example.com/project
     tags:
       environment: production
 ```
