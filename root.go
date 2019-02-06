@@ -1,4 +1,4 @@
-// Package reporter is a façade for reporting duties in NIDWALD.
+// Package reporter is a façade for reporting duties.
 //
 // Such a façade includes logging, error handling and metrics.
 package reporter

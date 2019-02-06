@@ -1,4 +1,4 @@
-// Package sentry integrates Sentry with NIDWALD.
+// Package sentry integrates Sentry with your project.
 //
 // This is really a thin wrapper around Sentry. Not much is happening
 // here.

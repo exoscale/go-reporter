@@ -37,6 +37,7 @@ type Configuration struct {
 	Level   Lvl
 	Console bool
 	Syslog  bool
+	Format  LogFormat
 	Files   []LogFile
 }
 
@@ -45,12 +46,28 @@ var DefaultConfiguration = Configuration{
 	Level:   Lvl(log.LvlInfo),
 	Console: false,
 	Syslog:  true,
+	Format:  FormatPlain,
 }
 
 // String transform a level to string.
 func (level Lvl) String() string {
 	l := log.Lvl(level)
 	return l.String()
+}
+
+// UnmarshalText parses a log format from YAML.
+func (level *LogFormat) UnmarshalText(text []byte) error {
+	switch logFormat := string(text); logFormat {
+	case "plain":
+		*level = FormatPlain
+	case "json":
+		*level = FormatJSON
+	case "":
+		*level = FormatPlain
+	default:
+		return fmt.Errorf("unknown log format %s", logFormat)
+	}
+	return nil
 }
 
 // UnmarshalText parses a log level from YAML.

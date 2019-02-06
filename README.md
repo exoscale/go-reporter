@@ -36,6 +36,7 @@ reporting:
     level: info
     console: true
     syslog: false
+    format: json
     files:
       - /var/log/project/project.log
       - json:/var/log/project/project.log
@@ -52,6 +53,8 @@ reporting:
 ``console`` enables logging to console while ``syslog`` enables
 logging to the local syslog daemon. No configuration knobs are
 available for those targets.
+
+`format` allows you to set the log format for `console` and `syslog`. Currently, `json` and `plain` are supported (default to `plain`).
 
 ``files`` allows one to set a list of files to log to. It's possible
 to prefix the file with the expected format. Currently, only ``json:``

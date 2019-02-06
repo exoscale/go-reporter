@@ -24,6 +24,7 @@ logging:
   console: true
   syslog: false
   level: debug
+  format: json
 metrics:
   - expvar:
       listen: :8123
@@ -34,6 +35,7 @@ sentry:
 				Logging: logger.Configuration{
 					Console: true,
 					Syslog:  false,
+					Format:  logger.FormatJSON,
 					Level:   4,
 				},
 				Metrics: metrics.Configuration([]metrics.ExporterConfiguration{

@@ -1,4 +1,4 @@
-// Package metrics handles metrics for NIDWALD.
+// Package metrics handles metrics.
 //
 // This is a wrapper around Code Hale's Metrics library. It also
 // setups the supported exporters.
