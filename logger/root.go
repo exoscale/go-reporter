@@ -54,7 +54,12 @@ func New(config Configuration, additionalHandler log.Handler, prefix string) (lo
 	}
 	// We need to build the appropriate handler.
 	if config.Console {
-		handlers = append(handlers, log.StreamHandler(os.Stdout, defaultFormatter))
+		if config.Format == FormatPlain {
+			handlers = append(handlers, log.StdoutHandler)
+
+		} else {
+			handlers = append(handlers, log.StreamHandler(os.Stdout, defaultFormatter))
+		}
 	}
 	if config.Syslog {
 		handler, err := log.SyslogHandler(syslog.LOG_INFO, prefix, defaultFormatter)
