@@ -12,6 +12,41 @@ import (
 	"github.com/exoscale/go-reporter/helpers"
 )
 
+func TestUnmarshalLogFormat(t *testing.T) {
+	cases := []struct {
+		in   string
+		want LogFormat
+	}{
+		{"json", FormatJSON},
+		{"plain", FormatPlain},
+		{"", FormatPlain},
+	}
+	for _, c := range cases {
+		var got LogFormat
+		err := yaml.Unmarshal([]byte(c.in), &got)
+		if err != nil {
+			t.Errorf("Unmarshal(%q) error:\n%+v", c.in, err)
+			continue
+		}
+		if diff := helpers.Diff(got, c.want); diff != "" {
+			t.Errorf("Unmarshal(%q) (-got +want):\n%s", c.in, diff)
+		}
+	}
+
+	errorCases := []struct {
+		in string
+	}{
+		{"unknown"},
+	}
+	for _, c := range errorCases {
+		var got LogFormat
+		err := yaml.Unmarshal([]byte(c.in), &got)
+		if err == nil {
+			t.Errorf("Unmarshal(%q) == %d but expected error", c.in, got)
+		}
+	}
+}
+
 func TestUnmarshalLogLevel(t *testing.T) {
 	cases := []struct {
 		in   string
@@ -114,6 +149,35 @@ files:
 				Level:   Lvl(log.LvlDebug),
 				Console: true,
 				Syslog:  false,
+				Format:  FormatPlain,
+				Files: []LogFile{
+					LogFile{
+						Name:   "/var/log/project.log",
+						Format: FormatPlain,
+					},
+					LogFile{
+						Name:   "/var/log/project.json",
+						Format: FormatJSON,
+					},
+				}}},
+		{"{}", Configuration{
+			Level:   Lvl(log.LvlInfo),
+			Console: false,
+			Syslog:  true}},
+		{`
+level: debug
+console: true
+format: json
+syslog: false
+files:
+  - /var/log/project.log
+  - json:/var/log/project.json
+`,
+			Configuration{
+				Level:   Lvl(log.LvlDebug),
+				Console: true,
+				Syslog:  false,
+				Format:  FormatJSON,
 				Files: []LogFile{
 					LogFile{
 						Name:   "/var/log/project.log",

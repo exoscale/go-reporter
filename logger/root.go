@@ -1,4 +1,4 @@
-// Package logger handles logging for NIDWALD.
+// Package logger handles logging.
 //
 // This is a thing wrapper around inconshreveable's log15. It
 // additionally brings a configuration format (from YAML) with the
@@ -34,29 +34,44 @@ const (
 // 	parentPackageName = ownPackageName[0:strings.LastIndex(ownPackageName, "/")]      // reporter
 // )
 
+func logFormat(logFormat LogFormat) (log.Format, error) {
+	switch logFormat {
+	case FormatPlain:
+		return log.LogfmtFormat(), nil
+	case FormatJSON:
+		return JSONv1Format(), nil
+	default:
+		return nil, fmt.Errorf("unknown format provided: %v", logFormat)
+	}
+}
+
 // New creates a new logger from a configuration.
 func New(config Configuration, additionalHandler log.Handler, prefix string) (log.Logger, error) {
 	handlers := make([]log.Handler, 0, 10)
+	defaultFormatter, err := logFormat(config.Format)
+	if err != nil {
+		return nil, err
+	}
 	// We need to build the appropriate handler.
 	if config.Console {
-		handlers = append(handlers, log.StreamHandler(os.Stdout, JSONv1Format()))
+		if config.Format == FormatPlain {
+			handlers = append(handlers, log.StdoutHandler)
+
+		} else {
+			handlers = append(handlers, log.StreamHandler(os.Stdout, defaultFormatter))
+		}
 	}
 	if config.Syslog {
-		handler, err := log.SyslogHandler(syslog.LOG_INFO, prefix, JSONv1Format())
+		handler, err := log.SyslogHandler(syslog.LOG_INFO, prefix, defaultFormatter)
 		if err != nil {
 			return nil, errors.Wrap(err, "unable to open syslog connection")
 		}
 		handlers = append(handlers, handler)
 	}
 	for _, logFile := range config.Files {
-		var formatter log.Format
-		switch logFile.Format {
-		case FormatPlain:
-			formatter = log.LogfmtFormat()
-		case FormatJSON:
-			formatter = JSONv1Format()
-		default:
-			panic(fmt.Sprintf("unknown format provided: %v", logFile.Format))
+		formatter, err := logFormat(logFile.Format)
+		if err != nil {
+			return nil, err
 		}
 		handler, err := log.FileHandler(logFile.Name, formatter)
 		if err != nil {
@@ -81,7 +96,7 @@ func New(config Configuration, additionalHandler log.Handler, prefix string) (lo
 // log.CallerFileHandler and log.CallerFuncHandler but it's a bit
 // smarter on how the stack trace is inspected to avoid logging
 // modules. It adds a "caller" (qualified function + line number) and
-// a "module" (NIDWALD package name).
+// a "module" (PROJECT package name).
 func contextHandler(h log.Handler, prefix string) log.Handler {
 	skipPrefixes := []string{
 		"github.com/exoscale/go-reporter",
@@ -153,7 +168,7 @@ func JSONv1Format() log.Format {
 		for i := 0; i < len(r.Ctx); i += 2 {
 			k, ok := r.Ctx[i].(string)
 			if !ok {
-				props["NIDWALDLOG_ERROR"] = fmt.Sprintf("%+v is not a string key", r.Ctx[i])
+				props["LOG_ERROR"] = fmt.Sprintf("%+v is not a string key", r.Ctx[i])
 			}
 			props[k] = formatJSONValue(r.Ctx[i+1])
 		}
@@ -161,7 +176,7 @@ func JSONv1Format() log.Format {
 		b, err := json.Marshal(props)
 		if err != nil {
 			b, _ = json.Marshal(map[string]string{
-				"NIDWALDLOG_ERROR": err.Error(),
+				"LOG_ERROR": err.Error(),
 			})
 		}
 
