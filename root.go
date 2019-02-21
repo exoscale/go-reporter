@@ -29,7 +29,7 @@ func New(config Configuration) (*Reporter, error) {
 	}
 
 	// Initialize logger
-	l, err := logger.New(config.Logging, sentryHandler(s), config.Prefix)
+	l, err := logger.New(config.Logging, sentryHandler(s, config.Sentry.Wait), config.Prefix)
 	if err != nil {
 		return nil, err
 	}

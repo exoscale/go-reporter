@@ -17,12 +17,23 @@ func TestUnmarshalConfiguration(t *testing.T) {
 			Configuration{
 				DSN:  "http://public:secret@sentry.errors",
 				Tags: nil,
+				Wait: false,
 			},
 		},
 		{"{}",
 			Configuration{
 				DSN:  "",
 				Tags: nil,
+				Wait: false,
+			},
+		},
+		{`
+dsn: http://public:secret@sentry.errors
+wait: true
+`,
+			Configuration{
+				DSN:  "http://public:secret@sentry.errors",
+				Wait: true,
 			},
 		},
 		{`
@@ -39,6 +50,7 @@ version: "foo"
 					"dc":          "us-east-4",
 				},
 				Version: "foo",
+				Wait:    false,
 			},
 		},
 	}
