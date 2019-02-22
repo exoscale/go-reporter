@@ -9,8 +9,10 @@ import (
 )
 
 // Interface Sentry with the logging subsytem. The idea is to register
-// an additional handler that will forward errors to Sentry.
-func sentryHandler(client *raven.Client) log.Handler {
+// an additional handler that will forward errors to Sentry. If wait is
+// true, calls to Sentry API will be done synchronously (and thus will
+// block the caller).
+func sentryHandler(client *raven.Client, wait bool) log.Handler {
 	if client == nil {
 		// No sentry configured
 		return nil
@@ -41,7 +43,12 @@ func sentryHandler(client *raven.Client) log.Handler {
 		if err == nil {
 			return nil
 		}
+
 		client.CaptureError(err, tags)
+		if wait {
+			client.Wait()
+		}
+
 		return nil
 	})
 }
