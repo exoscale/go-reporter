@@ -135,7 +135,11 @@ reporting:
     dsn: https://public:secret@sentry.example.com/project
     tags:
       environment: production
+    wait: false
 ```
+
+Sentry calls are performed asynchronously by default. To wait for the Sentry
+API to acknowledge the event, set `wait: true`.
 
 ### Prefix
 
