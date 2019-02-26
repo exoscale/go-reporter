@@ -39,6 +39,7 @@ func TestCollectd(t *testing.T) {
 	configuration[0] = &CollectdConfiguration{
 		Connect:  address,
 		Interval: config.Duration(500 * time.Millisecond),
+		Exclude:  []string{"metrics.test.donot*"},
 	}
 	m, err := New(configuration, "project")
 	if err != nil {
@@ -54,6 +55,9 @@ func TestCollectd(t *testing.T) {
 	metrics.NewRegisteredHistogram("metrics.test.histogram", m.Registry,
 		metrics.NewUniformSample(10)).Update(1871)
 	metrics.NewRegisteredMeter("metrics.test.meter", m.Registry).Mark(19)
+
+	// Create a metric that we'll exclude from reporting
+	metrics.NewRegisteredGauge("metrics.test.donotwant", m.Registry).Update(13)
 
 	// For timer, we would like to test percentiles too. 50 and 75
 	// percentile will be 16, but others will be 18.
@@ -193,6 +197,7 @@ L:
 			},
 		},
 	}
+
 	for _, c := range cases {
 		found := false
 		var v *api.ValueList
@@ -226,6 +231,12 @@ L:
 		}
 		if diff := helpers.Diff(v.Values[:c.compare], c.values[:c.compare]); diff != "" {
 			t.Errorf("Received metric %+v (-got +want):\n%s", v, diff)
+		}
+	}
+
+	for _, v := range values {
+		if v.PluginInstance == "donotwant" {
+			t.Error("Excluded metric found in received metrics")
 		}
 	}
 }
