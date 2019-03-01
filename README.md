@@ -16,7 +16,7 @@ It can also be configured through a YAML file.
 Currently, due to a technical limitation, if a key is unknown, it will
 just be ignored. Be extra-careful that all keys are correctly spelled.
 
-## Yaml
+## Configuration
 
 The reporter encompasses the following aspects, each of them having its
 own subsection:
@@ -69,6 +69,11 @@ reporting:
   metrics:
     - expvar:
         listen: 127.0.0.1:8123
+    - collectd:
+        connect: 127.0.0.1:25826
+        interval: 10s
+        exclude:
+          - go.runtime.*
 ```
 
 The support outputs are:
@@ -107,6 +112,7 @@ The ``collectd`` output supports the following keys:
 
  - ``connect`` to specify the target (default to ``127.0.0.1:25826``)
  - ``interval`` to specify an interval (mandatory)
+ - ``exclude`` to specify a list of metric names patterns (shell globbing) to exclude from reporting
 
 For collectd output to work correctly, you need to append the
 following to ``types.db`` file::

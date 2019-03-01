@@ -3,6 +3,7 @@ package metrics
 import (
 	"context"
 	"os"
+	"path"
 	"strings"
 	"time"
 
@@ -21,6 +22,7 @@ var separator = "."
 type CollectdConfiguration struct {
 	Connect  config.Addr
 	Interval config.Duration
+	Exclude  []string
 }
 
 // UnmarshalYAML parses a configuration for collectd from YAML.
@@ -55,7 +57,7 @@ func (c *CollectdConfiguration) initExporter(m *Metrics) error {
 		for {
 			select {
 			case <-tick.C:
-				collectdReportOnce(m.Registry, client, time.Duration(c.Interval), m.prefix)
+				collectdReportOnce(m.Registry, client, time.Duration(c.Interval), m.prefix, c.Exclude)
 			case <-m.t.Dying():
 				break L
 			}
@@ -69,7 +71,8 @@ func (c *CollectdConfiguration) initExporter(m *Metrics) error {
 }
 
 // collectdReportOnce will export the current metrics to collectd
-func collectdReportOnce(r metrics.Registry, client *network.Client, interval time.Duration, prefix string) {
+func collectdReportOnce(r metrics.Registry, client *network.Client, interval time.Duration,
+	prefix string, excluded []string) {
 	ctx := context.Background()
 	hostname, err := os.Hostname()
 	if err != nil {
@@ -78,6 +81,14 @@ func collectdReportOnce(r metrics.Registry, client *network.Client, interval tim
 	now := time.Now()
 	vls := make([]*api.ValueList, 0, 10)
 	r.Each(func(name string, i interface{}) {
+		// Filter metrics matching any configured pattern
+		// Any error parsing an exclusion pattern is silently ignored.
+		for _, pattern := range excluded {
+			if matched, _ := path.Match(pattern, name); matched {
+				return
+			}
+		}
+
 		var identifierType string
 		var values []api.Value
 		switch metric := i.(type) {
