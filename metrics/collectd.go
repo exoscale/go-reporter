@@ -2,7 +2,6 @@ package metrics
 
 import (
 	"context"
-	"os"
 	"path"
 	"strings"
 	"time"
@@ -12,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rcrowley/go-metrics"
 
-	"github.com/exoscale/go-reporter/config"
+        "github.com/exoscale/go-reporter/config"
 )
 
 var separator = "."
@@ -74,7 +73,7 @@ func (c *CollectdConfiguration) initExporter(m *Metrics) error {
 func collectdReportOnce(r metrics.Registry, client *network.Client, interval time.Duration,
 	prefix string, excluded []string) {
 	ctx := context.Background()
-	hostname, err := os.Hostname()
+        hostname, err := config.GetFQDN()
 	if err != nil {
 		return
 	}
