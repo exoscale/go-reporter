@@ -8,7 +8,7 @@ import (
 )
 
 // Get Fully Qualified Domain Name
-// returns "unknown" or hostanme in case of error
+// returns  hostanme-fqdn or error
 func Get() (string, error) {
 	hostname, err := os.Hostname()
 	if err != nil {

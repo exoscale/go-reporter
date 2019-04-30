@@ -2,7 +2,6 @@ package metrics
 
 import (
 	"context"
-//	"os"
 	"path"
 	"strings"
 	"time"
