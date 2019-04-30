@@ -213,7 +213,7 @@ L:
 			continue
 		}
 
-		hostname, _ := os.Hostname()
+		hostname, _ := config.GetFQDN()
 		if v.Host != hostname {
 			t.Errorf("Received metric %+v has hostname == %v, expected %v",
 				v, v.Host, hostname)
