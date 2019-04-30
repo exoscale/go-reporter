@@ -1,4 +1,4 @@
-package fqdn
+package config
 
 import (
 	"net"
@@ -9,7 +9,8 @@ import (
 
 // Get Fully Qualified Domain Name
 // returns  hostanme-fqdn or error
-func Get() (string, error) {
+// Original idea from: https://github.com/Showmax/go-fqdn/blob/master/fqdn.go
+func GetFQDN() (string, error) {
 	hostname, err := os.Hostname()
 	if err != nil {
 		return "unknown", errors.Wrapf(err, "hostname unknown")

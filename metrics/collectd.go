@@ -11,7 +11,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rcrowley/go-metrics"
 
-	"github.com/exoscale/go-reporter/fqdn"
         "github.com/exoscale/go-reporter/config"
 )
 
@@ -74,7 +73,7 @@ func (c *CollectdConfiguration) initExporter(m *Metrics) error {
 func collectdReportOnce(r metrics.Registry, client *network.Client, interval time.Duration,
 	prefix string, excluded []string) {
 	ctx := context.Background()
-        hostname, err := fqdn.Get()
+        hostname, err := config.GetFQDN()
 	if err != nil {
 		return
 	}
