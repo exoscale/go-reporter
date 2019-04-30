@@ -8,7 +8,7 @@ import (
 )
 
 // Get Fully Qualified Domain Name
-// returns  hostanme-fqdn or error
+// returns the host FQDN or an error
 // Original idea from: https://github.com/Showmax/go-fqdn/blob/master/fqdn.go
 func GetFQDN() (string, error) {
 	hostname, err := os.Hostname()
