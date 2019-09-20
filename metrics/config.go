@@ -1,8 +1,8 @@
 package metrics
 
 import (
-	"gopkg.in/yaml.v2"
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v2"
 )
 
 // Configuration is a list list of exporter configurations. However,
@@ -43,6 +43,12 @@ func (c *Configuration) UnmarshalYAML(unmarshal func(interface{}) error) error {
 			return errors.Wrapf(err, "metric configuration item %d", i+1)
 		}
 		switch exporterName {
+		case "prometheus":
+			var exporterConfiguration PrometheusConfiguration
+			if err := yaml.Unmarshal(strExporterConfiguration, &exporterConfiguration); err != nil {
+				return errors.Wrapf(err, "incorrect prometheus configuration for item %d", i+1)
+			}
+			finalConfiguration[i] = &exporterConfiguration
 		case "expvar":
 			var exporterConfiguration ExpvarConfiguration
 			if err := yaml.Unmarshal(strExporterConfiguration, &exporterConfiguration); err != nil {
