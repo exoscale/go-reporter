@@ -2,6 +2,9 @@ package metrics
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"time"
@@ -17,10 +20,13 @@ import (
 // PrometheusConfiguration is the configuration for exporting metrics to
 // files.
 type PrometheusConfiguration struct {
-	Listen    config.Addr
-	Interval  config.Duration
-	Namespace string
-	Subsystem string
+	Listen     config.Addr
+	Interval   config.Duration
+	Namespace  string
+	Subsystem  string
+	CertFile   config.FilePath
+	KeyFile    config.FilePath
+	CacertFile config.FilePath
 }
 
 // UnmarshalYAML parses the configuration from YAML.
@@ -41,6 +47,11 @@ func (c *PrometheusConfiguration) UnmarshalYAML(unmarshal func(interface{}) erro
 	}
 	if raw.Interval == config.Duration(0) {
 		return errors.Errorf("missing interval value for prometheus configuration")
+	}
+
+	if (raw.CertFile != "" || raw.KeyFile != "" || raw.CacertFile != "") &&
+		(raw.CertFile == "" || raw.KeyFile == "" || raw.CacertFile == "") {
+		return errors.Errorf("certfile, keyfile and cacertfile should be configured")
 	}
 	*c = PrometheusConfiguration(raw)
 	return nil
@@ -78,7 +89,23 @@ func (c *PrometheusConfiguration) initExporter(metrics *Metrics) error {
 	}
 
 	metrics.t.Go(func() error {
-		server.Serve(listener)
+		if c.CertFile == "" && c.KeyFile == "" && c.CacertFile == "" {
+			server.Serve(listener)
+		} else {
+			cacert, err := ioutil.ReadFile(string(c.CacertFile))
+			if err != nil {
+				return err
+			}
+			certpool := x509.NewCertPool()
+			certpool.AppendCertsFromPEM(cacert)
+
+			tlsConfig := &tls.Config{
+				ClientAuth: tls.RequireAndVerifyClientCert,
+				ClientCAs:  certpool,
+			}
+			server.TLSConfig = tlsConfig
+			server.ServeTLS(listener, string(c.CertFile), string(c.KeyFile))
+		}
 		return nil
 	})
 
