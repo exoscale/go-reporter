@@ -59,6 +59,28 @@ func TestUnmarshalConfiguration(t *testing.T) {
 				Subsystem: "bar",
 			},
 		},
+
+		{
+			in: `
+- prometheus:
+    listen: 127.0.0.1:7653
+    interval: 10s
+    namespace: foo
+    subsystem: bar
+    certfile: /tmp/foo
+    keyfile: /tmp/bar
+    cacertfile: /tmp/baz
+`,
+			want: PrometheusConfiguration{
+				Listen:     config.Addr("127.0.0.1:7653"),
+				Interval:   config.Duration(10 * time.Second),
+				Namespace:  "foo",
+				Subsystem:  "bar",
+				CertFile:   config.FilePath("/tmp/foo"),
+				KeyFile:    config.FilePath("/tmp/bar"),
+				CacertFile: config.FilePath("/tmp/baz"),
+			},
+		},
 	}
 	for _, c := range cases {
 		var got Configuration
@@ -80,7 +102,22 @@ func TestUnmarshalIncompleteConfiguration(t *testing.T) {
 		`- file: {interval: 10m}`,
 		`- file: {path: /var/log/project...}`,
 		`- collectd: {}`,
-		`- prometheus: {}`,
+		`
+- prometheus:
+    listen: 127.0.0.1:7653
+    interval: 10s
+    namespace: foo
+    subsystem: bar
+    keyfile: /tmp/bar
+`,
+		`
+- prometheus:
+    listen: 127.0.0.1:7653
+    interval: 10s
+    namespace: foo
+    subsystem: bar
+    certfile: /tmp/foo
+`,
 	}
 	for _, c := range cases {
 		var got Configuration
