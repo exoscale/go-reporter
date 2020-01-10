@@ -5,10 +5,12 @@ package reporter
 
 import (
 	"github.com/getsentry/raven-go"
+	"github.com/prometheus/client_golang/prometheus/push"
 	log "gopkg.in/inconshreveable/log15.v2"
 
 	"github.com/exoscale/go-reporter/logger"
 	"github.com/exoscale/go-reporter/metrics"
+	"github.com/exoscale/go-reporter/pushgw"
 	"github.com/exoscale/go-reporter/sentry"
 )
 
@@ -17,6 +19,7 @@ type Reporter struct {
 	logger  log.Logger
 	sentry  *raven.Client
 	metrics *metrics.Metrics
+	pushgw  *push.Pusher
 	prefix  string
 }
 
@@ -40,10 +43,17 @@ func New(config Configuration) (*Reporter, error) {
 		return nil, err
 	}
 
+	// Initialize pushgw
+	p := pushgw.New(config.Pushgw)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
 	return &Reporter{
 		logger:  l,
 		sentry:  s,
 		metrics: m,
+		pushgw:  p,
 		prefix:  config.Prefix,
 	}, nil
 }

@@ -9,8 +9,6 @@ require (
 	github.com/kylelemons/godebug v0.0.0-20170820004349-d65d576e9348
 	github.com/mattn/go-colorable v0.0.9 // indirect
 	github.com/mattn/go-isatty v0.0.4 // indirect
-	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/prometheus/client_golang v1.1.0
 	github.com/rcrowley/go-metrics v0.0.0-20181016184325-3113b8401b8a
@@ -20,3 +18,5 @@ require (
 )
 
 replace github.com/rcrowley/go-metrics => github.com/exoscale/go-metrics v0.0.0-20180729161012-6a0b1c6c28ec
+
+go 1.13

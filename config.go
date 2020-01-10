@@ -1,11 +1,12 @@
 package reporter
 
 import (
-	"gopkg.in/yaml.v2"
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v2"
 
 	"github.com/exoscale/go-reporter/logger"
 	"github.com/exoscale/go-reporter/metrics"
+	"github.com/exoscale/go-reporter/pushgw"
 	"github.com/exoscale/go-reporter/sentry"
 )
 
@@ -14,6 +15,7 @@ type Configuration struct {
 	Logging logger.Configuration
 	Sentry  sentry.Configuration
 	Metrics metrics.Configuration
+	Pushgw  pushgw.Configuration
 	Prefix  string
 }
 
