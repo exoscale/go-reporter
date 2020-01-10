@@ -32,7 +32,7 @@ func NewHTTPClient(config Configuration) (*http.Client, error) {
 	var tlsConfig *tls.Config
 
 	if config.CacertFile != "" {
-		cert, err := tls.LoadX509KeyPair(config.CacertFile, config.KeyFile)
+		cert, err := tls.LoadX509KeyPair(config.CertFile, config.KeyFile)
 		if err != nil {
 			return nil, errors.Wrap(err, "can't load certificate pair")
 		}
