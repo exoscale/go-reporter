@@ -44,10 +44,10 @@ func New(config Configuration) (*Reporter, error) {
 	}
 
 	// Initialize pushgw
-	p := pushgw.New(config.Pushgw)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	p, err := pushgw.New(config.Pushgw)
+	if err != nil {
+		return nil, err
+	}
 
 	return &Reporter{
 		logger:  l,

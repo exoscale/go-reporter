@@ -1,9 +1,10 @@
 package pushgw
 
 import (
+	"testing"
+
 	"github.com/exoscale/go-reporter/helpers"
 	"gopkg.in/yaml.v2"
-	"testing"
 )
 
 func TestUnmarshalConfiguration(t *testing.T) {
@@ -13,12 +14,18 @@ func TestUnmarshalConfiguration(t *testing.T) {
 	}{
 		{
 			in: `
-url: http://pushgateway.exoscale.net
+url: http://pushgateway.net
 job: bar
+certfile: /tmp/foo
+keyfile: /tmp/bar
+cacertfile: /tmp/baz
 `,
 			want: Configuration{
-				URL: "http://pushgateway.exoscale.net",
-				Job: "bar",
+				URL:        "http://pushgateway.net",
+				Job:        "bar",
+				CertFile:   "/tmp/foo",
+				KeyFile:    "/tmp/bar",
+				CacertFile: "/tmp/baz",
 			},
 		},
 	}

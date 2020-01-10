@@ -9,6 +9,7 @@ import (
 	"github.com/exoscale/go-reporter/helpers"
 	"github.com/exoscale/go-reporter/logger"
 	"github.com/exoscale/go-reporter/metrics"
+	"github.com/exoscale/go-reporter/pushgw"
 	"github.com/exoscale/go-reporter/sentry"
 )
 
@@ -30,6 +31,12 @@ metrics:
       listen: :8123
 sentry:
   dsn: "http://public:secret@errors"
+pushgw:
+  url: https://pushgateway.net
+  job: bar
+  certfile: /tmp/foo
+  keyfile: /tmp/bar
+  cacertfile: /tmp/baz
 `,
 			want: Configuration{
 				Logging: logger.Configuration{
@@ -45,6 +52,13 @@ sentry:
 				}),
 				Sentry: sentry.Configuration{
 					DSN: "http://public:secret@errors",
+				},
+				Pushgw: pushgw.Configuration{
+					URL:        "https://pushgateway.net",
+					Job:        "bar",
+					CertFile:   "/tmp/foo",
+					KeyFile:    "/tmp/bar",
+					CacertFile: "/tmp/baz",
 				},
 				Prefix: "aargau",
 			},
