@@ -59,17 +59,17 @@ func (r *Reporter) Start() error {
 // Stop will stop reporting and clean the associated resources.
 func (r *Reporter) Stop() error {
 	if r.sentry != nil {
-		r.Info("shutting down Sentry subsystem")
+		r.Debug("shutting down Sentry subsystem")
 		r.sentry.Wait()
 		r.sentry.Close()
 	}
 	if r.metrics != nil {
-		r.Info("shutting down metric subsystem")
+		r.Debug("shutting down metric subsystem")
 		err := r.metrics.Stop()
 		if err != nil {
 			_ = r.Error(err, "fail to stop the metric reporter")
 		}
 	}
-	r.Info("stop reporting")
+	r.Debug("stop reporting")
 	return nil
 }
