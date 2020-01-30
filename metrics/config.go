@@ -67,6 +67,12 @@ func (c *Configuration) UnmarshalYAML(unmarshal func(interface{}) error) error {
 				return errors.Wrapf(err, "incorrect collectd configuration for item %d", i+1)
 			}
 			finalConfiguration[i] = &exporterConfiguration
+		case "prompushgw":
+			var exporterConfiguration PromPushGWConfiguration
+			if err := yaml.Unmarshal(strExporterConfiguration, &exporterConfiguration); err != nil {
+				return errors.Wrapf(err, "incorrect prompushgw configuration for item %d", i+1)
+			}
+			finalConfiguration[i] = &exporterConfiguration
 		default:
 			return errors.Errorf("unknown metric system %q for item %d",
 				exporterName, i+1)
