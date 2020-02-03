@@ -51,7 +51,7 @@ func (c *PromPushGWConfiguration) initExporter(m *Metrics) error {
 	return nil
 }
 
-// NewHTTPClient creates an http client for a given  config
+// NewHTTPClient creates an HTTP client for a given config.
 func NewHTTPClient(config PromPushGWConfiguration) (*http.Client, error) {
 	var transport = &http.Transport{}
 	var tlsConfig *tls.Config
