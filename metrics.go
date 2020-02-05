@@ -53,6 +53,11 @@ func (r *Reporter) Timer(name string) metrics.Timer {
 	return metrics.GetOrRegisterTimer(expandName(name, r.prefix), r.metrics.Registry)
 }
 
+// Push pushes registered metrics to a push gateway.
+func (r *Reporter) Push() error {
+	return r.metrics.Push()
+}
+
 // Healthcheck holds healthcheck state.
 type Healthcheck struct {
 	metrics.Healthcheck

@@ -81,6 +81,23 @@ func TestUnmarshalConfiguration(t *testing.T) {
 				CacertFile: config.FilePath("/tmp/baz"),
 			},
 		},
+		{
+			in: `
+- prompushgw:
+    url: https://my.pushgateway.net
+    job: bar
+    certfile: /tmp/foo
+    keyfile: /tmp/bar
+    cacertfile: /tmp/baz
+`,
+			want: PromPushGWConfiguration{
+				URL:        "https://my.pushgateway.net",
+				Job:        "bar",
+				CertFile:   config.FilePath("/tmp/foo"),
+				KeyFile:    config.FilePath("/tmp/bar"),
+				CacertFile: config.FilePath("/tmp/baz"),
+			},
+		},
 	}
 	for _, c := range cases {
 		var got Configuration
@@ -117,6 +134,13 @@ func TestUnmarshalIncompleteConfiguration(t *testing.T) {
     namespace: foo
     subsystem: bar
     certfile: /tmp/foo
+`,
+		`
+- prompushgw:
+    url: https://my.pushgateway.net
+    certfile: /tmp/foo
+    keyfile: /tmp/bar
+    cacertfile: /tmp/baz
 `,
 	}
 	for _, c := range cases {
