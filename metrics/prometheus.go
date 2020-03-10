@@ -42,9 +42,6 @@ func (c *PrometheusConfiguration) UnmarshalYAML(unmarshal func(interface{}) erro
 	if raw.Namespace == "" {
 		return errors.Errorf("missing namespace value")
 	}
-	if raw.Subsystem == "" {
-		return errors.Errorf("missing subsystem value")
-	}
 	if raw.Interval == config.Duration(0) {
 		return errors.Errorf("missing interval value for prometheus configuration")
 	}
