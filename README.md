@@ -22,7 +22,7 @@ just be ignored. Be extra-careful that all keys are correctly spelled.
 
 Here is an example configuration:
 
-``yaml
+```yaml
 reporting:
   logging:
     level: info
@@ -32,7 +32,7 @@ reporting:
     files:
       - /var/log/project/project.log
       - json:/var/log/project/project.log
-``
+```
 
 `level` specify the maximum log level to use. It can be one of:
 
@@ -170,7 +170,7 @@ API to acknowledge the event, set `wait: true`.
 
 The `prefix` of the logs and metrics.
 
-``yaml
+```yaml
 reporting:
   prefix: myproject
-``
+```
