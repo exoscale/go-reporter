@@ -14,6 +14,7 @@ import (
 
 // Reporter contains the state for a reporter.
 type Reporter struct {
+	config  *Configuration
 	logger  log.Logger
 	sentry  *raven.Client
 	metrics *metrics.Metrics
@@ -41,11 +42,17 @@ func New(config Configuration) (*Reporter, error) {
 	}
 
 	return &Reporter{
+		config:  &config,
 		logger:  l,
 		sentry:  s,
 		metrics: m,
 		prefix:  config.Prefix,
 	}, nil
+}
+
+// Config returns the original configuration provided during reporter initialization.
+func (r *Reporter) Config() *Configuration {
+	return r.config
 }
 
 // Start will start the reporter component
