@@ -33,10 +33,9 @@ func New(config *Config) (*Reporter, error) {
 	reporter.config = config
 
 	reporter.log = log15.New()
+	reporter.log.SetHandler(log15.DiscardHandler())
 	if config.Debug {
 		reporter.log.SetHandler(log15.StderrHandler)
-	} else {
-		reporter.log.SetHandler(log15.DiscardHandler())
 	}
 
 	if config.Errors != nil {
