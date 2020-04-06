@@ -59,12 +59,12 @@ func New(config *Config) (*Reporter, error) {
 	return &reporter, nil
 }
 
-// Start starts the logging reporter.
+// Start is a no-op operation.
 func (r *Reporter) Start(_ context.Context) error {
 	return nil
 }
 
-// Stop stops the logging reporter.
+// Stop is a no-op operation.
 func (r *Reporter) Stop(_ context.Context) error {
 	return nil
 }
