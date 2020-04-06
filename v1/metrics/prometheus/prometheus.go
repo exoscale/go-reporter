@@ -100,12 +100,13 @@ func (e *Exporter) Start(ctx context.Context) error {
 func (e *Exporter) Stop(ctx context.Context) error {
 	// Since tomb activation is conditional, we have to check if it has actually been activated
 	// before trying to kill it otherwise we'll get stuck: https://github.com/go-tomb/tomb/issues/21
-	if e.t != nil {
-		e.t.Kill(nil)
-		return e.t.Wait()
+	if e.t == nil {
+		return nil
 	}
 
-	return nil
+	e.t.Kill(nil)
+
+	return e.t.Wait()
 }
 
 // SetLogger sets the metrics exporter internal logger.
