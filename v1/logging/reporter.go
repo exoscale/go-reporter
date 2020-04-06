@@ -1,3 +1,4 @@
+// logging implements a logs reporter.
 package logging
 
 import (

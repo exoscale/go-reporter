@@ -1,3 +1,4 @@
+// errors implements an errors/crashes reporter.
 package errors
 
 import (

@@ -1,3 +1,4 @@
+// v1 implements the v1 version of the go-reporter package.
 package v1
 
 import (

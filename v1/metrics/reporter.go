@@ -1,3 +1,4 @@
+// metrics implements a metrics reporter.
 package metrics
 
 import (
