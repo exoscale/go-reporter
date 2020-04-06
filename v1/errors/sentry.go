@@ -92,7 +92,7 @@ type SentryTestTransport struct {
 }
 
 // Configure is a no-op for SentryTestTransport.
-func (t *SentryTestTransport) Configure(options sentry.ClientOptions) {}
+func (t *SentryTestTransport) Configure(_ sentry.ClientOptions) {}
 
 // SendEvent assembles a new packet out of `Event` and sends it to remote server.
 func (t *SentryTestTransport) SendEvent(event *sentry.Event) {
@@ -103,7 +103,7 @@ func (t *SentryTestTransport) SendEvent(event *sentry.Event) {
 }
 
 // Flush is a no-op for SentryTestTransport. It always returns true immediately.
-func (t *SentryTestTransport) Flush(timeout time.Duration) bool {
+func (t *SentryTestTransport) Flush(_ time.Duration) bool {
 	return true
 }
 
