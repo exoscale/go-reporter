@@ -52,6 +52,11 @@ func sentryEventFromLogRecord(rec *log15.Record) *sentryEventModifier {
 	// Extract context key/value pairs from the log record's context,
 	// which is stored as a string slice of key/value pairs.
 	for i := 0; i < len(rec.Ctx); i += 2 {
+		// Guard against bogus records containing an odd number of context values
+		if len(rec.Ctx[i:]) == 1 {
+			break
+		}
+
 		k, v := rec.Ctx[i], rec.Ctx[i+1]
 		s.tags[fmt.Sprint(k)] = fmt.Sprint(v)
 	}

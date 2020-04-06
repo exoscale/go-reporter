@@ -33,17 +33,35 @@ func TestFilterStackFrames(t *testing.T) {
 }
 
 func TestSentryEventFromLogRecord(t *testing.T) {
-	var testRec = log15.Record{
+	s := sentryEventFromLogRecord(&log15.Record{
 		Time: time.Now(),
 		Lvl:  log15.LvlError,
 		Msg:  "oh noes!",
 		Ctx:  []interface{}{"k1", "v1", "k2", "v2"},
-	}
-
-	s := sentryEventFromLogRecord(&testRec)
+	})
 	require.Len(t, s.tags, 2)
 	require.Equal(t, map[string]string{
 		"k1": "v1",
 		"k2": "v2",
+	}, s.tags)
+
+	// With bogus log record (odd number of context values)
+	s = sentryEventFromLogRecord(&log15.Record{
+		Time: time.Now(),
+		Lvl:  log15.LvlError,
+		Msg:  "oh noes!",
+		Ctx:  []interface{}{"k1"},
+	})
+	require.Len(t, s.tags, 0)
+
+	s = sentryEventFromLogRecord(&log15.Record{
+		Time: time.Now(),
+		Lvl:  log15.LvlError,
+		Msg:  "oh noes!",
+		Ctx:  []interface{}{"k1", "v1", "k2"},
+	})
+	require.Len(t, s.tags, 1)
+	require.Equal(t, map[string]string{
+		"k1": "v1",
 	}, s.tags)
 }
