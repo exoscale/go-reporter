@@ -113,10 +113,9 @@ func newSyslogHandler(d *LogDestinationConfig) (log15.Handler, error) {
 		err           error
 	)
 
+	syslogHandler, err = log15.SyslogHandler(syslog.LOG_INFO, "", d.logFormat())
 	if d.Destination != "" {
 		syslogHandler, err = log15.SyslogNetHandler("tcp", d.Destination, syslog.LOG_INFO, "", d.logFormat())
-	} else {
-		syslogHandler, err = log15.SyslogHandler(syslog.LOG_INFO, "", d.logFormat())
 	}
 	if err != nil {
 		return nil, err

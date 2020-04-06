@@ -33,10 +33,11 @@ func New(config *Config) (*Reporter, error) {
 	}
 	reporter.config = config
 
-	if reporter.sentry, err = sentry.NewClient(sentry.ClientOptions{
+	reporter.sentry, err = sentry.NewClient(sentry.ClientOptions{
 		Dsn:              config.DSN,
 		AttachStacktrace: true,
-	}); err != nil {
+	})
+	if err != nil {
 		return nil, err
 	}
 

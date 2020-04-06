@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	defaultFlushInterval = 5
+	defaultFlushIntervalSec = 5
 )
 
 // Config represents a metrics reporter configuration.
@@ -13,7 +13,7 @@ type Config struct {
 	// Prometheus represents a Prometheus metrics exporter configuration.
 	Prometheus *prometheus.Config `yaml:"prometheus"`
 
-	// FlushInterval represents the time interval at which to flush metrics to the internal registry.
+	// FlushInterval represents the time interval in seconds at which to flush metrics to the internal registry.
 	FlushInterval int `yaml:"flush_interval"`
 
 	// WithRuntimeMetrics represents a flag indicating whether Go runtime metrics should be included to the registered
@@ -23,7 +23,7 @@ type Config struct {
 
 func (c *Config) validate() error {
 	if c.FlushInterval <= 0 {
-		c.FlushInterval = defaultFlushInterval
+		c.FlushInterval = defaultFlushIntervalSec
 	}
 
 	return nil

@@ -69,29 +69,31 @@ func (e *Exporter) MustRegister(m prom.Collector) {
 
 // Start starts the metrics exporter.
 func (e *Exporter) Start(ctx context.Context) error {
-	if e.pm != nil {
-		e.t, _ = tomb.WithContext(ctx)
-
-		e.t.Go(func() error {
-			tick := time.NewTicker(time.Duration(e.config.FlushInterval) * time.Second)
-
-			for {
-				select {
-				case <-tick.C:
-					e.log.Debug("flushing go-metrics registry to Prometheus registry")
-					if err := e.pm.UpdatePrometheusMetricsOnce(); err != nil {
-						e.log.Error("unable to flush go-metrics registry to Prometheus registry",
-							"err", err)
-						return err
-					}
-
-				case <-e.t.Dying():
-					tick.Stop()
-					return nil
-				}
-			}
-		})
+	if e.pm == nil {
+		return nil
 	}
+
+	e.t, _ = tomb.WithContext(ctx)
+
+	e.t.Go(func() error {
+		tick := time.NewTicker(time.Duration(e.config.FlushInterval) * time.Second)
+
+		for {
+			select {
+			case <-tick.C:
+				e.log.Debug("flushing go-metrics registry to Prometheus registry")
+				if err := e.pm.UpdatePrometheusMetricsOnce(); err != nil {
+					e.log.Error("unable to flush go-metrics registry to Prometheus registry",
+						"err", err)
+					return err
+				}
+
+			case <-e.t.Dying():
+				tick.Stop()
+				return nil
+			}
+		}
+	})
 
 	return nil
 }
