@@ -80,8 +80,7 @@ func (r *Reporter) SetHandler(h log15.Handler) {
 }
 
 // SetLogger is a no-op operation.
-func (r *Reporter) SetLogger(_ log15.Logger) {
-}
+func (r *Reporter) SetLogger(_ log15.Logger) {}
 
 // Crit logs a message with a "critical" severity level.
 func (r *Reporter) Crit(msg string, ctx ...interface{}) {
