@@ -1,5 +1,5 @@
-// v1 implements the v1 version of the go-reporter package.
-package v1
+// v2 implements the v2 version of the go-reporter package.
+package v2
 
 import (
 	"context"
@@ -7,9 +7,9 @@ import (
 
 	"gopkg.in/inconshreveable/log15.v2"
 
-	"github.com/exoscale/go-reporter/v1/errors"
-	"github.com/exoscale/go-reporter/v1/logging"
-	"github.com/exoscale/go-reporter/v1/metrics"
+	"github.com/exoscale/go-reporter/v2/errors"
+	"github.com/exoscale/go-reporter/v2/logging"
+	"github.com/exoscale/go-reporter/v2/metrics"
 )
 
 // Reporter represents a reporter instance.

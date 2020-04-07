@@ -8,8 +8,8 @@ import (
 	gometrics "github.com/rcrowley/go-metrics"
 	"github.com/stretchr/testify/require"
 
-	"github.com/exoscale/go-reporter/v1/metrics/prometheus"
-	gtesting "github.com/exoscale/go-reporter/v1/testing"
+	"github.com/exoscale/go-reporter/v2/metrics/prometheus"
+	gtesting "github.com/exoscale/go-reporter/v2/testing"
 )
 
 /*

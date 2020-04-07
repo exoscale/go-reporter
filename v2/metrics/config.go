@@ -1,7 +1,7 @@
 package metrics
 
 import (
-	"github.com/exoscale/go-reporter/v1/metrics/prometheus"
+	"github.com/exoscale/go-reporter/v2/metrics/prometheus"
 )
 
 const (

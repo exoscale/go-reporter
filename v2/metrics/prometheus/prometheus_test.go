@@ -13,7 +13,7 @@ import (
 	gometrics "github.com/rcrowley/go-metrics"
 	"github.com/stretchr/testify/require"
 
-	gtesting "github.com/exoscale/go-reporter/v1/testing"
+	gtesting "github.com/exoscale/go-reporter/v2/testing"
 )
 
 func TestNew(t *testing.T) {

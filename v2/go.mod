@@ -1,4 +1,4 @@
-module github.com/exoscale/go-reporter/v1
+module github.com/exoscale/go-reporter/v2
 
 go 1.13
 
@@ -10,7 +10,6 @@ require (
 	github.com/prometheus/client_golang v1.5.0
 	github.com/rcrowley/go-metrics v0.0.0-20200313005456-10cdbea86bc0
 	github.com/stretchr/testify v1.5.1
-	github.com/thecodeteam/goodbye v0.0.0-20170927022442-a83968bda2d3
 	gopkg.in/inconshreveable/log15.v2 v2.0.0-20200109203555-b30bc20e4fd1
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
 )

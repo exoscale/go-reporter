@@ -1,4 +1,4 @@
-package v1
+package v2
 
 // Crit is a convenience wrapper around Reporter.Logging.Crit().
 // It is effective only if the reporter has its logging reporter configured.

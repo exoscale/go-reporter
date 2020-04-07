@@ -9,7 +9,7 @@ import (
 	"gopkg.in/inconshreveable/log15.v2"
 	"gopkg.in/tomb.v2"
 
-	"github.com/exoscale/go-reporter/v1/metrics/prometheus"
+	"github.com/exoscale/go-reporter/v2/metrics/prometheus"
 )
 
 // Reporter represents a metrics reporter instance.

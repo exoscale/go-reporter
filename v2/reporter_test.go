@@ -1,14 +1,14 @@
-package v1
+package v2
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/exoscale/go-reporter/v1/errors"
-	"github.com/exoscale/go-reporter/v1/logging"
-	"github.com/exoscale/go-reporter/v1/metrics"
-	"github.com/exoscale/go-reporter/v1/metrics/prometheus"
+	"github.com/exoscale/go-reporter/v2/errors"
+	"github.com/exoscale/go-reporter/v2/logging"
+	"github.com/exoscale/go-reporter/v2/metrics"
+	"github.com/exoscale/go-reporter/v2/metrics/prometheus"
 )
 
 var testSentryDSN = "https://xxxxxxxxxxxxxxxxxxxxx:yyyyyyyyyyyyyyyyyyy@sentry.example.net/42"
