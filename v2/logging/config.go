@@ -79,8 +79,12 @@ func (c *LogDestinationConfig) validate() error {
 
 // Config represents a logging reporter configuration.
 type Config struct {
+	// Destinations represents the list of logging destinations.
 	Destinations []*LogDestinationConfig `yaml:"destination"`
-	ReportErrors bool                    `yaml:"report_errors"`
+
+	// ReportErrors represents a flag indicating whether to automatically send error-level and higher
+	// log messages to the errors reporter (the errors reporter has to be configured).
+	ReportErrors bool `yaml:"report_errors"`
 }
 
 func (c *Config) validate() error {

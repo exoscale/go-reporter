@@ -7,9 +7,15 @@ import (
 )
 
 type Config struct {
-	Metrics *metrics.Config `yaml:"metrics"`
-	Logging *logging.Config `yaml:"logging"`
-	Errors  *errors.Config  `yaml:"errors"`
+	// Errors represents the errors reporter configuration.
+	Errors *errors.Config `yaml:"errors"`
 
+	// Logging represents the logging reporter configuration.
+	Logging *logging.Config `yaml:"logging"`
+
+	// Metrics represents the metrics reporter configuration.
+	Metrics *metrics.Config `yaml:"metrics"`
+
+	// Debug represents a flags indicating whether to enable internal reporter debug logging.
 	Debug bool `yaml:"debug"`
 }
