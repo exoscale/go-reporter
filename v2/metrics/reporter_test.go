@@ -9,7 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/exoscale/go-reporter/v2/metrics/prometheus"
-	gtesting "github.com/exoscale/go-reporter/v2/testing"
 )
 
 /*
@@ -41,7 +40,6 @@ func TestNew(t *testing.T) {
 	reporter, err = New(testConfig)
 	require.NoError(t, err)
 	require.NotNil(t, reporter)
-	require.NotNil(t, reporter.log)
 	require.NotNil(t, reporter.registry)
 	require.NotNil(t, reporter.Prometheus)
 }
@@ -51,7 +49,6 @@ func TestReporter_Register(t *testing.T) {
 
 	reporter, err := New(&Config{})
 	require.NoError(t, err)
-	reporter.log.SetHandler(gtesting.NewLogHandler(t))
 
 	metric := gometrics.NewGauge()
 	require.NoError(t, reporter.Register(testMetricName, metric))
@@ -66,7 +63,6 @@ func TestReporter_Start(t *testing.T) {
 		WithRuntimeMetrics: true,
 	})
 	require.NoError(t, err)
-	reporter.log.SetHandler(gtesting.NewLogHandler(t))
 
 	require.NoError(t, reporter.Start(testCtx))
 	require.NotNil(t, reporter.t)
@@ -90,7 +86,6 @@ func TestReporter_Stop(t *testing.T) {
 		WithRuntimeMetrics: true,
 	})
 	require.NoError(t, err)
-	reporter.log.SetHandler(gtesting.NewLogHandler(t))
 
 	require.NoError(t, reporter.Start(testCtx))
 	require.NotNil(t, reporter.t)

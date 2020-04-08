@@ -15,6 +15,10 @@ type Config struct {
 
 	// Subsystem represents the subsystem to apply to registered Prometheus metrics.
 	Subsystem string `yaml:"subsystem"`
+
+	// Debug represents a flags indicating whether to enable internal exporter activity logging.
+	// This is mainly for debug purposes.
+	Debug bool `yaml:"debug"`
 }
 
 func (c *Config) validate() error {

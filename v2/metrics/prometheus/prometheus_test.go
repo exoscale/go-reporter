@@ -12,8 +12,6 @@ import (
 	prom "github.com/prometheus/client_golang/prometheus"
 	gometrics "github.com/rcrowley/go-metrics"
 	"github.com/stretchr/testify/require"
-
-	gtesting "github.com/exoscale/go-reporter/v2/testing"
 )
 
 func TestNew(t *testing.T) {
@@ -25,7 +23,6 @@ func TestNew(t *testing.T) {
 	exporter, err := New(testConfig, metrics)
 	require.NoError(t, err)
 	require.NotNil(t, exporter)
-	require.NotNil(t, exporter.log)
 	require.NotNil(t, exporter.registry)
 	require.NotNil(t, exporter.pm)
 	require.Equal(t, testConfig, exporter.config)
@@ -68,7 +65,6 @@ func TestExporter_HTTPHandler(t *testing.T) {
 
 	exporter, err := New(testConfig, nil)
 	require.NoError(t, err)
-	exporter.log.SetHandler(gtesting.NewLogHandler(t))
 
 	require.NoError(t, exporter.Register(testMetric))
 
@@ -106,7 +102,6 @@ func TestExporter_Start(t *testing.T) {
 
 	exporter, err := New(testConfig, registry)
 	require.NoError(t, err)
-	exporter.log.SetHandler(gtesting.NewLogHandler(t))
 
 	require.NoError(t, exporter.Start(testCtx))
 	require.NotNil(t, exporter.t)
@@ -135,7 +130,6 @@ func TestExporter_Stop(t *testing.T) {
 
 	exporter, err := New(testConfig, metrics)
 	require.NoError(t, err)
-	exporter.log.SetHandler(gtesting.NewLogHandler(t))
 
 	require.NoError(t, exporter.Start(testCtx))
 	require.NotNil(t, exporter.t)

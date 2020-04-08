@@ -16,6 +16,7 @@ type Config struct {
 	// Metrics represents the metrics reporter configuration.
 	Metrics *metrics.Config `yaml:"metrics"`
 
-	// Debug represents a flags indicating whether to enable internal reporter debug logging.
+	// Debug represents a flags indicating whether to enable internal reporter activity logging.
+	// This is mainly for debug purposes.
 	Debug bool `yaml:"debug"`
 }

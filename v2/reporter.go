@@ -8,6 +8,7 @@ import (
 	"gopkg.in/inconshreveable/log15.v2"
 
 	"github.com/exoscale/go-reporter/v2/errors"
+	"github.com/exoscale/go-reporter/v2/internal/debug"
 	"github.com/exoscale/go-reporter/v2/logging"
 	"github.com/exoscale/go-reporter/v2/metrics"
 )
@@ -18,9 +19,9 @@ type Reporter struct {
 	Logging *logging.Reporter
 	Metrics *metrics.Reporter
 
-	log log15.Logger
-
 	config *Config
+
+	*debug.D
 }
 
 // New returns a new reporter instance.
@@ -30,31 +31,38 @@ func New(config *Config) (*Reporter, error) {
 		err      error
 	)
 
-	reporter.log = log15.New()
-	reporter.log.SetHandler(log15.DiscardHandler())
-
 	if config == nil {
 		return &reporter, nil
 	}
 
 	reporter.config = config
 
+	// IMPORTANT:
+	// To use the debug logger in this package, we have to call its methods via its explicit identifier instead
+	// of the methods embedded in the Reporter receiver (i.e. "reporter.D.Debug()" and not "reporter.Debug()"),
+	// otherwise those methods will clash with the other logging methods implemented on the Reporter structure
+	// (see logging.go file).
+	reporter.D = debug.New("reporter")
 	if config.Debug {
-		reporter.log.SetHandler(log15.StderrHandler)
+		reporter.D.On()
 	}
 
 	if config.Errors != nil {
+		reporter.D.Debug("initializing errors reporter")
+		config.Errors.Debug = config.Debug
+
 		if reporter.Errors, err = errors.New(config.Errors); err != nil {
 			return nil, err
 		}
-		reporter.Errors.SetLogger(reporter.log)
 	}
 
 	if config.Logging != nil {
+		reporter.D.Debug("initializing logging reporter")
+		config.Logging.Debug = config.Debug
+
 		if reporter.Logging, err = logging.New(config.Logging); err != nil {
 			return nil, err
 		}
-		reporter.Logging.SetLogger(reporter.log)
 
 		// Hook the errors reporter's log handler to the logging reporter's logger
 		if config.Logging.ReportErrors {
@@ -69,10 +77,12 @@ func New(config *Config) (*Reporter, error) {
 	}
 
 	if config.Metrics != nil {
+		reporter.D.Debug("initializing metrics reporter")
+		config.Metrics.Debug = config.Debug
+
 		if reporter.Metrics, err = metrics.New(config.Metrics); err != nil {
 			return nil, err
 		}
-		reporter.Metrics.SetLogger(reporter.log)
 	}
 
 	return &reporter, nil
@@ -81,27 +91,27 @@ func New(config *Config) (*Reporter, error) {
 // Start starts the configured reporters.
 func (r *Reporter) Start(ctx context.Context) error {
 	if r.Errors != nil {
-		r.log.Debug("starting errors reporter")
+		r.D.Debug("starting errors reporter")
 		if err := r.Errors.Start(ctx); err != nil {
 			return err
 		}
-		r.log.Debug("errors reporter started")
+		r.D.Debug("errors reporter started")
 	}
 
 	if r.Logging != nil {
-		r.log.Debug("starting logging reporter")
+		r.D.Debug("starting logging reporter")
 		if err := r.Logging.Start(ctx); err != nil {
 			return err
 		}
-		r.log.Debug("logging reporter started")
+		r.D.Debug("logging reporter started")
 	}
 
 	if r.Metrics != nil {
-		r.log.Debug("starting metrics reporter")
+		r.D.Debug("starting metrics reporter")
 		if err := r.Metrics.Start(ctx); err != nil {
 			return err
 		}
-		r.log.Debug("metrics reporter started")
+		r.D.Debug("metrics reporter started")
 	}
 
 	return nil
@@ -110,27 +120,27 @@ func (r *Reporter) Start(ctx context.Context) error {
 // Stop stops the configured reporters.
 func (r *Reporter) Stop(ctx context.Context) error {
 	if r.Errors != nil {
-		r.log.Debug("stopping errors reporter")
+		r.D.Debug("stopping errors reporter")
 		if err := r.Errors.Stop(ctx); err != nil {
 			return err
 		}
-		r.log.Debug("errors reporter stopped")
+		r.D.Debug("errors reporter stopped")
 	}
 
 	if r.Logging != nil {
-		r.log.Debug("stopping logging reporter")
+		r.D.Debug("stopping logging reporter")
 		if err := r.Logging.Stop(ctx); err != nil {
 			return err
 		}
-		r.log.Debug("logging reporter stopped")
+		r.D.Debug("logging reporter stopped")
 	}
 
 	if r.Metrics != nil {
-		r.log.Debug("stopping metrics reporter")
+		r.D.Debug("stopping metrics reporter")
 		if err := r.Metrics.Stop(ctx); err != nil {
 			return err
 		}
-		r.log.Debug("metrics reporter stopped")
+		r.D.Debug("metrics reporter stopped")
 	}
 
 	return nil

@@ -8,6 +8,8 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	"gopkg.in/inconshreveable/log15.v2"
+
+	"github.com/exoscale/go-reporter/v2/internal/debug"
 )
 
 // Reporter represents an errors reporter instance.
@@ -15,6 +17,8 @@ type Reporter struct {
 	sentry *sentry.Client
 
 	config *Config
+
+	*debug.D
 }
 
 // New returns a new errors reporter instance.
@@ -32,6 +36,13 @@ func New(config *Config) (*Reporter, error) {
 		return nil, err
 	}
 	reporter.config = config
+
+	reporter.D = debug.New("reporter/errors")
+	if config.Debug {
+		reporter.D.On()
+	}
+
+	reporter.Debug("initializing Sentry client")
 
 	reporter.sentry, err = sentry.NewClient(sentry.ClientOptions{
 		Dsn:              config.DSN,
@@ -91,8 +102,4 @@ func (r *Reporter) PanicHandler(fn func(interface{})) {
 // SetSentryTransport sets the errors reporter's Sentry client transport. This is mainly for testing purposes.
 func (r *Reporter) SetSentryTransport(t sentry.Transport) {
 	r.sentry.Transport = t
-}
-
-// SetLogger is a no-op operation.
-func (r *Reporter) SetLogger(_ log15.Logger) {
 }

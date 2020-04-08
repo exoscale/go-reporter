@@ -19,6 +19,10 @@ type Config struct {
 	// WithRuntimeMetrics represents a flag indicating whether Go runtime metrics should be included to the registered
 	// metrics.
 	WithRuntimeMetrics bool `yaml:"runtime_metrics"`
+
+	// Debug represents a flags indicating whether to enable internal reporter activity logging.
+	// This is mainly for debug purposes.
+	Debug bool `yaml:"debug"`
 }
 
 func (c *Config) validate() error {

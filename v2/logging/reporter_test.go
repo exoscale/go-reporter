@@ -39,7 +39,6 @@ func TestNew(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, reporter)
 	require.NotNil(t, reporter.config)
-	require.NotNil(t, reporter.log)
 
 	reporter.Error(testErrorMessage)
 	require.FileExists(t, testDestFilePlain)

@@ -10,6 +10,10 @@ type Config struct {
 	// Wait represents a flag indicating if the calls to Sentry should be done synchronously
 	// (effectively blocking the caller).
 	Wait bool `yaml:"wait"`
+
+	// Debug represents a flags indicating whether to enable internal reporter activity logging.
+	// This is mainly for debug purposes.
+	Debug bool `yaml:"debug"`
 }
 
 func (c *Config) validate() error {

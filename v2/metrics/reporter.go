@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/rcrowley/go-metrics"
-	"gopkg.in/inconshreveable/log15.v2"
 	"gopkg.in/tomb.v2"
 
+	"github.com/exoscale/go-reporter/v2/internal/debug"
 	"github.com/exoscale/go-reporter/v2/metrics/prometheus"
 )
 
@@ -19,9 +19,10 @@ type Reporter struct {
 	registry        metrics.Registry
 	runtimeRegistry metrics.Registry
 
-	log    log15.Logger
-	t      *tomb.Tomb
+	t      *tomb.Tomb // Goroutines manager
 	config *Config
+
+	*debug.D
 }
 
 // New returns a new metrics reporter instance.
@@ -30,9 +31,6 @@ func New(config *Config) (*Reporter, error) {
 		reporter Reporter
 		err      error
 	)
-
-	reporter.log = log15.New()
-	reporter.log.SetHandler(log15.DiscardHandler())
 
 	if config == nil {
 		return nil, nil
@@ -43,14 +41,21 @@ func New(config *Config) (*Reporter, error) {
 	}
 	reporter.config = config
 
+	reporter.D = debug.New("reporter/metrics")
+	if config.Debug {
+		reporter.D.On()
+	}
+
 	reporter.registry = metrics.NewRegistry()
 
 	if config.WithRuntimeMetrics {
+		reporter.Debug("enabling Go runtime metrics collection")
 		reporter.runtimeRegistry = metrics.NewPrefixedChildRegistry(reporter.registry, "go.")
 		metrics.RegisterRuntimeMemStats(reporter.runtimeRegistry)
 	}
 
 	if config.Prometheus != nil {
+		config.Prometheus.Debug = config.Debug
 		if reporter.Prometheus, err = prometheus.New(config.Prometheus, reporter.registry); err != nil {
 			return nil, err
 		}
@@ -75,7 +80,7 @@ func (r *Reporter) Start(ctx context.Context) error {
 			for {
 				select {
 				case <-ticker.C:
-					r.log.Debug("flushing runtime metrics to registry")
+					r.Debug("flushing runtime metrics to registry")
 					metrics.CaptureRuntimeMemStatsOnce(r.runtimeRegistry)
 
 				case <-r.t.Dying():
@@ -87,11 +92,11 @@ func (r *Reporter) Start(ctx context.Context) error {
 	}
 
 	if r.Prometheus != nil {
-		r.log.Debug("starting Prometheus metrics exporter")
+		r.Debug("starting Prometheus exporter")
 		if err := r.Prometheus.Start(ctx); err != nil {
 			return err
 		}
-		r.log.Debug("Prometheus metrics exporter started")
+		r.Debug("Prometheus exporter started")
 	}
 
 	return nil
@@ -100,11 +105,11 @@ func (r *Reporter) Start(ctx context.Context) error {
 // Stop stops the metrics reporter.
 func (r *Reporter) Stop(ctx context.Context) error {
 	if r.Prometheus != nil {
-		r.log.Debug("stopping metrics Prometheus exporter")
+		r.Debug("stopping Prometheus exporter")
 		if err := r.Prometheus.Stop(ctx); err != nil {
 			return err
 		}
-		r.log.Debug("Prometheus metrics exporter stopped")
+		r.Debug("Prometheus exporter stopped")
 	}
 
 	// Since tomb activation is conditional, we have to check if it has actually been activated
@@ -115,13 +120,4 @@ func (r *Reporter) Stop(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-// SetLogger sets the metrics reporter internal logger. This is mainly for debug purposes.
-func (r *Reporter) SetLogger(logger log15.Logger) {
-	r.log = logger
-
-	if r.Prometheus != nil {
-		r.Prometheus.SetLogger(r.log)
-	}
 }

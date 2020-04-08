@@ -10,18 +10,20 @@ import (
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rcrowley/go-metrics"
-	"gopkg.in/inconshreveable/log15.v2"
 	"gopkg.in/tomb.v2"
+
+	"github.com/exoscale/go-reporter/v2/internal/debug"
 )
 
 // Exporter represents a metrics exporter to a Prometheus server.
 type Exporter struct {
-	config   *Config
 	registry *prom.Registry
 	pm       *prometheusmetrics.PrometheusConfig
 
-	log log15.Logger
-	t   *tomb.Tomb
+	t      *tomb.Tomb // Goroutines manager
+	config *Config
+
+	*debug.D
 }
 
 // New returns a new Prometheus metrics exporter based on provided configuration.
@@ -30,17 +32,26 @@ type Exporter struct {
 func New(config *Config, registry metrics.Registry) (*Exporter, error) {
 	var exporter Exporter
 
-	exporter.log = log15.New()
-	exporter.log.SetHandler(log15.DiscardHandler())
-
 	if err := config.validate(); err != nil {
 		return nil, err
 	}
 	exporter.config = config
 
+	exporter.D = debug.New("reporter/metrics/prometheus")
+	if config.Debug {
+		exporter.D.On()
+	}
+
+	exporter.Debug("enabling exporter",
+		"namespace", config.Namespace,
+		"subsystem", config.Subsystem,
+		"flush_interval", config.FlushInterval)
+
 	exporter.registry = prom.NewRegistry()
 
 	if registry != nil {
+		exporter.Debug("enabling go-metrics registry export to Prometheus")
+
 		exporter.pm = prometheusmetrics.NewPrometheusProvider(
 			registry,
 			exporter.config.Namespace,
@@ -78,18 +89,20 @@ func (e *Exporter) Start(ctx context.Context) error {
 	e.t.Go(func() error {
 		tick := time.NewTicker(time.Duration(e.config.FlushInterval) * time.Second)
 
+		e.Debug("starting")
+
 		for {
 			select {
 			case <-tick.C:
-				e.log.Debug("flushing go-metrics registry to Prometheus registry")
+				e.Debug("flushing go-metrics registry")
 				if err := e.pm.UpdatePrometheusMetricsOnce(); err != nil {
-					e.log.Error("unable to flush go-metrics registry to Prometheus registry",
-						"err", err)
+					e.Error("unable to flush go-metrics registry", "err", err)
 					return err
 				}
 
 			case <-e.t.Dying():
 				tick.Stop()
+				e.Debug("terminating")
 				return nil
 			}
 		}
@@ -99,7 +112,7 @@ func (e *Exporter) Start(ctx context.Context) error {
 }
 
 // Stop stops the metrics exporter.
-func (e *Exporter) Stop(ctx context.Context) error {
+func (e *Exporter) Stop(_ context.Context) error {
 	// Since tomb activation is conditional, we have to check if it has actually been activated
 	// before trying to kill it otherwise we'll get stuck: https://github.com/go-tomb/tomb/issues/21
 	if e.t == nil {
@@ -109,9 +122,4 @@ func (e *Exporter) Stop(ctx context.Context) error {
 	e.t.Kill(nil)
 
 	return e.t.Wait()
-}
-
-// SetLogger sets the metrics exporter internal logger.
-func (e *Exporter) SetLogger(logger log15.Logger) {
-	e.log = logger
 }
