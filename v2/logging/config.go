@@ -21,7 +21,7 @@ type LogDestinationConfig struct {
 	// Destination represents the log destination depending on the type:
 	// - For type "file", is must be a filesystem path
 	// - For "console", it is ignored
-	// - For type "syslog", it can be either empty (local syslog) or a net.Dial format string  for remote syslog
+	// - For type "syslog", it can be either empty (local syslog) or a net.Dial compatible string for remote syslog
 	Destination string `yaml:"destination"`
 
 	// Level represents the highest message severity level to report (crit..debug).

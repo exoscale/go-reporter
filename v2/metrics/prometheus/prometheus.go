@@ -80,33 +80,23 @@ func (e *Exporter) MustRegister(m prom.Collector) {
 
 // Start starts the metrics exporter.
 func (e *Exporter) Start(ctx context.Context) error {
-	if e.pm == nil {
+	// Before initializing the goroutines management tomb we have to check that we actually have goroutines to
+	// handle with it, otherwise it'll get stuck during shutdown (see Stop() method).
+	if e.pm == nil && e.config.Listen == "" {
 		return nil
 	}
 
 	e.t, _ = tomb.WithContext(ctx)
 
-	e.t.Go(func() error {
-		tick := time.NewTicker(time.Duration(e.config.FlushInterval) * time.Second)
+	if e.pm != nil {
+		e.t.Go(e.registryFlushLoop)
+	}
 
-		e.Debug("starting")
-
-		for {
-			select {
-			case <-tick.C:
-				e.Debug("flushing go-metrics registry")
-				if err := e.pm.UpdatePrometheusMetricsOnce(); err != nil {
-					e.Error("unable to flush go-metrics registry", "err", err)
-					return err
-				}
-
-			case <-e.t.Dying():
-				tick.Stop()
-				e.Debug("terminating")
-				return nil
-			}
-		}
-	})
+	if e.config.Listen != "" {
+		e.t.Go(func() error {
+			return e.serveHTTP(nil)
+		})
+	}
 
 	return nil
 }
@@ -122,4 +112,46 @@ func (e *Exporter) Stop(_ context.Context) error {
 	e.t.Kill(nil)
 
 	return e.t.Wait()
+}
+
+// registryFlushLoop periodically flushes the go-metrics registry provided during exporter initialization to the
+// Prometheus registry. This method blocks the caller until the exporter's tomb dies.
+func (e *Exporter) registryFlushLoop() error {
+	tick := time.NewTicker(time.Duration(e.config.FlushInterval) * time.Second)
+
+	e.Debug("starting go-metrics flush loop")
+
+	for {
+		select {
+		case <-tick.C:
+			if err := e.pm.UpdatePrometheusMetricsOnce(); err != nil {
+				e.Error("unable to flush go-metrics registry", "err", err)
+				return err
+			}
+
+		case <-e.t.Dying():
+			tick.Stop()
+			e.Debug("terminating go-metrics flush loop")
+			return nil
+		}
+	}
+}
+
+// serveHTTP runs an HTTP server to serve the Prometheus metrics scraping endpoint. This method blocks the caller
+// until the exporter's tomb dies.
+func (e *Exporter) serveHTTP(server *http.Server) error {
+	if server == nil {
+		server = &http.Server{
+			Addr:    e.config.Listen,
+			Handler: e.HTTPHandler(),
+		}
+	}
+
+	e.Debug("starting scraping endpoint server")
+
+	go server.ListenAndServe()
+
+	_ = <-e.t.Dying()
+	e.Debug("terminating scraping endpoint server")
+	return server.Shutdown(context.Background())
 }

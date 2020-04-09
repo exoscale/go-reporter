@@ -1,11 +1,20 @@
 package prometheus
 
+import (
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
+)
+
 const (
 	defaultFlushIntervalSec = 5
 )
 
 // Config represents a prometheus metrics export configuration.
 type Config struct {
+	// Listen represents a net.Dial compatible string indicating the network address to bind the Prometheus metrics
+	// scraping endpoint server. If not specified, the server won't be started.
+	Listen string `yaml:"listen"`
+
 	// FlushInterval represents the time interval in seconds at which the metrics reporter's registry metrics are
 	// flushed to the Prometheus registry.
 	FlushInterval int `yaml:"flush_interval"`
@@ -26,5 +35,8 @@ func (c *Config) validate() error {
 		c.FlushInterval = defaultFlushIntervalSec
 	}
 
-	return nil
+	return validation.ValidateStruct(c,
+		validation.Field(&c.Listen,
+			validation.When(c.Listen != "", is.DialString)),
+	)
 }
