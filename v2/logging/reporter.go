@@ -3,6 +3,7 @@ package logging
 
 import (
 	"context"
+	"sort"
 
 	"gopkg.in/inconshreveable/log15.v2"
 
@@ -36,7 +37,8 @@ func New(config *Config) (*Reporter, error) {
 		reporter.D.On()
 	}
 
-	reporter.logger = log15.New()
+	ctx := mapToLogContext(config.Context)
+	reporter.logger = log15.New(ctx...)
 	reporter.logger.SetHandler(log15.DiscardHandler())
 
 	handlers := make([]log15.Handler, 0)
@@ -117,4 +119,22 @@ func (r *Reporter) Info(msg string, ctx ...interface{}) {
 // Debug logs a message with a "debug" severity level.
 func (r *Reporter) Debug(msg string, ctx ...interface{}) {
 	r.logger.Debug(msg, ctx...)
+}
+
+// mapToLogContext converts a map of key/value strings to a log15-compatible context.
+func mapToLogContext(m map[string]string) []interface{} {
+	ctx := make([]interface{}, 0)
+
+	// Sort map keys to make testing easier
+	keys := make([]string, 0)
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	for _, k := range keys {
+		ctx = append(ctx, k, m[k])
+	}
+
+	return ctx
 }

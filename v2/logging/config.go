@@ -82,6 +82,9 @@ type Config struct {
 	// Destinations represents the list of logging destinations.
 	Destinations []*LogDestinationConfig `yaml:"destinations"`
 
+	// Context represents user-defined context key/values to be injected into log records.
+	Context map[string]string `yaml:"context"`
+
 	// ReportErrors represents a flag indicating whether to automatically send error-level and higher
 	// log messages to the errors reporter (the errors reporter has to be configured).
 	ReportErrors bool `yaml:"report_errors"`
