@@ -80,6 +80,14 @@ func (r *Reporter) LogHandler() log15.Handler {
 	})
 }
 
+// SendError sends the specified error to Sentry. If tags is not nil, they will be added to the event.
+func (r *Reporter) SendError(err error, tags map[string]string) {
+	r.sentry.CaptureException(err, nil, sentryEventWithTags(tags))
+	if r.config.Wait {
+		r.sentry.Flush(sentryFlushTimeout)
+	}
+}
+
 // PanicHandler is a function that recovers from a panic and sends an event to Sentry. If a fn function is provided it
 // will be executed with the recovered panic value as parameter before returning – typically to exit the program with
 // a non-nil return code. This handler should be used with a defer statement at the beginning of the program to watch

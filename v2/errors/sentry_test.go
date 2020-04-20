@@ -65,3 +65,14 @@ func TestSentryEventFromLogRecord(t *testing.T) {
 		"k1": "v1",
 	}, s.tags)
 }
+
+func TestSentryEventWithTags(t *testing.T) {
+	var testTags = map[string]string{
+		"k1": "v1",
+		"k2": "v2",
+	}
+
+	s := sentryEventWithTags(testTags)
+	require.Len(t, s.tags, 2)
+	require.Equal(t, testTags, s.tags)
+}

@@ -47,7 +47,8 @@ func (m *sentryEventModifier) ApplyToEvent(event *sentry.Event, _ *sentry.EventH
 	return event
 }
 
-// sentryEventFromPanic returns a sentryEventModifier instance containing tags extracted from a log record's context.
+// sentryEventFromLogRecord returns a sentryEventModifier instance containing tags extracted from a log record's
+// context.
 func sentryEventFromLogRecord(rec *log15.Record) *sentryEventModifier {
 	var s = sentryEventModifier{tags: make(map[string]string)}
 
@@ -72,6 +73,11 @@ func sentryEventFromPanic(_ interface{}) *sentryEventModifier {
 		tags:  make(map[string]string),
 		panic: true,
 	}
+}
+
+// sentryEventWithTags returns a sentryEventModifier instance adding user-specifed tags.
+func sentryEventWithTags(tags map[string]string) *sentryEventModifier {
+	return &sentryEventModifier{tags: tags}
 }
 
 // filterStackFrames filters out all frames related to internal packages.
