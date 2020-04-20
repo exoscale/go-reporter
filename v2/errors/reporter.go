@@ -4,7 +4,6 @@ package errors
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/getsentry/sentry-go"
 	"gopkg.in/inconshreveable/log15.v2"
@@ -74,7 +73,7 @@ func (r *Reporter) LogHandler() log15.Handler {
 
 		r.sentry.CaptureException(errors.New(rec.Msg), nil, sentryEventFromLogRecord(rec))
 		if r.config.Wait {
-			r.sentry.Flush(5 * time.Second)
+			r.sentry.Flush(sentryFlushTimeout)
 		}
 
 		return nil
@@ -90,7 +89,7 @@ func (r *Reporter) PanicHandler(fn func(interface{})) {
 		r.sentry.Recover(re, nil, sentryEventFromPanic(re))
 
 		if r.config.Wait {
-			r.sentry.Flush(5 * time.Second)
+			r.sentry.Flush(sentryFlushTimeout)
 		}
 
 		if fn != nil {

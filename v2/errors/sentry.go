@@ -10,6 +10,8 @@ import (
 	"gopkg.in/inconshreveable/log15.v2"
 )
 
+const sentryFlushTimeout = 5 * time.Second
+
 var (
 	// internalPackages represents a list of packages to be excluded from the errors stack trace sent to Sentry.
 	// Note: the Sentry SDK encodes dots in packages' import path into "%2e".
