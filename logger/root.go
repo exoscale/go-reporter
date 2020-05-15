@@ -84,11 +84,14 @@ func New(config Configuration, additionalHandler log.Handler, prefix string) (lo
 	var logger = log.New()
 	logHandler := log.LvlFilterHandler(
 		log.Lvl(config.Level),
-		contextHandler(log.MultiHandler(handlers...), prefix))
+		contextHandler(log.MultiHandler(handlers...), prefix, config.IncludeCaller))
+
 	if additionalHandler != nil {
 		logHandler = log.MultiHandler(logHandler, additionalHandler)
 	}
+
 	logger.SetHandler(logHandler)
+
 	return logger, nil
 }
 
@@ -97,7 +100,7 @@ func New(config Configuration, additionalHandler log.Handler, prefix string) (lo
 // smarter on how the stack trace is inspected to avoid logging
 // modules. It adds a "caller" (qualified function + line number) and
 // a "module" (PROJECT package name).
-func contextHandler(h log.Handler, prefix string) log.Handler {
+func contextHandler(h log.Handler, prefix string, includeCaller bool) log.Handler {
 	skipPrefixes := []string{
 		"github.com/exoscale/go-reporter",
 		"github.com/sirupsen/logrus",
@@ -108,7 +111,7 @@ func contextHandler(h log.Handler, prefix string) log.Handler {
 		callerFound := false
 	outer:
 		for _, call := range callStack {
-			if !callerFound {
+			if !callerFound && includeCaller {
 				// Searching for the first caller.
 				caller := fmt.Sprintf("%+v", call)
 				for _, prefix := range skipPrefixes {

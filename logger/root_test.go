@@ -104,11 +104,11 @@ func TestNewFiles(t *testing.T) {
 	if len(lines) != 3 {
 		t.Fatalf("Got %d line of logs, expected %d", len(lines)-1, 2)
 	}
-	if !strings.Contains(string(lines[0]), " msg=hello ") {
+	if !strings.Contains(string(lines[0]), " msg=hello") {
 		t.Fatalf("First log should be %q, got %q instead",
 			"msg=hello", lines[0])
 	}
-	if !strings.Contains(string(lines[1]), " msg=important ") {
+	if !strings.Contains(string(lines[1]), " msg=important") {
 		t.Fatalf("Second log should be %q, got %q instead",
 			"msg=important", lines[1])
 	}

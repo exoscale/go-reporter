@@ -34,19 +34,21 @@ const (
 // The ability to override log levels for some modules is currently
 // missing.
 type Configuration struct {
-	Level   Lvl
-	Console bool
-	Syslog  bool
-	Format  LogFormat
-	Files   []LogFile
+	Level         Lvl
+	Console       bool
+	Syslog        bool
+	IncludeCaller bool `yaml:"include_caller,omitempty"`
+	Format        LogFormat
+	Files         []LogFile
 }
 
 // DefaultConfiguration is the default logging configuration.
 var DefaultConfiguration = Configuration{
-	Level:   Lvl(log.LvlInfo),
-	Console: false,
-	Syslog:  true,
-	Format:  FormatPlain,
+	Level:         Lvl(log.LvlInfo),
+	Console:       false,
+	Syslog:        true,
+	IncludeCaller: false,
+	Format:        FormatPlain,
 }
 
 // String transform a level to string.
