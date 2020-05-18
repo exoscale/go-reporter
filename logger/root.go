@@ -100,9 +100,7 @@ func New(config Configuration, additionalHandler log.Handler, prefix string) (lo
 		logHandler = log.MultiHandler(logHandler, additionalHandler)
 	}
 
-	if logHandler != nil {
-		logger.SetHandler(logHandler)
-	}
+	logger.SetHandler(logHandler)
 
 	return logger, nil
 }
