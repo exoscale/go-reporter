@@ -51,6 +51,30 @@ func TestNewFiles(t *testing.T) {
 		t.Fatalf("Unable to initialize new logger:\n%+v", err)
 	}
 
+	testNewFiles(t, logger, tempDir)
+
+	logger, err = New(Configuration{
+		Level:         Lvl(log.LvlInfo),
+		IncludeCaller: true,
+		Files: []LogFile{
+			LogFile{
+				Name:   filepath.Join(tempDir, "out2.txt"),
+				Format: FormatPlain,
+			},
+			LogFile{
+				Name:   filepath.Join(tempDir, "out2.json"),
+				Format: FormatJSON,
+			},
+		},
+	}, nil, "project2")
+	if err != nil {
+		t.Fatalf("Unable to initialize new logger:\n%+v", err)
+	}
+
+	testNewFiles(t, logger, tempDir)
+}
+
+func testNewFiles(t *testing.T, logger log.Logger, tempDir string) {
 	logger.Info("hello")
 	logger.Debug("nothing")
 	logger.Crit("important")
