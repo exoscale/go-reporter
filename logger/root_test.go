@@ -22,6 +22,7 @@ func TestNewEmpty(t *testing.T) {
 type logLine struct {
 	Level     string
 	Module    string
+	Caller    string
 	Message   string
 	Timestamp string `json:"@timestamp"`
 	Version   int    `json:"@version"`
@@ -104,13 +105,60 @@ func TestNewFiles(t *testing.T) {
 	if len(lines) != 3 {
 		t.Fatalf("Got %d line of logs, expected %d", len(lines)-1, 2)
 	}
-	if !strings.Contains(string(lines[0]), " msg=hello ") {
+	if !strings.Contains(string(lines[0]), " msg=hello") {
 		t.Fatalf("First log should be %q, got %q instead",
 			"msg=hello", lines[0])
 	}
-	if !strings.Contains(string(lines[1]), " msg=important ") {
+	if !strings.Contains(string(lines[1]), " msg=important") {
 		t.Fatalf("Second log should be %q, got %q instead",
 			"msg=important", lines[1])
 	}
 
+}
+
+func TestCaller(t *testing.T) {
+	tempDir, err := ioutil.TempDir("", "logs")
+	if err != nil {
+		t.Fatalf("Unable to create a temporary directory:\n%+v", err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	logger, err := New(Configuration{
+		IncludeCaller: true,
+		Level:         Lvl(log.LvlInfo),
+		Files: []LogFile{
+			LogFile{
+				Name:   filepath.Join(tempDir, "out.txt"),
+				Format: FormatPlain,
+			},
+			LogFile{
+				Name:   filepath.Join(tempDir, "out.json"),
+				Format: FormatJSON,
+			},
+		},
+	}, nil, "project")
+	if err != nil {
+		t.Fatalf("Unable to initialize new logger:\n%+v", err)
+	}
+
+	logger.Info("hello")
+
+	// Json file
+	contents, err := ioutil.ReadFile(filepath.Join(tempDir, "out.json"))
+	if err != nil {
+		t.Fatalf("Unable to read JSON log %q:\n%+v", filepath.Join(tempDir, "out.json"), err)
+	}
+	line := strings.Split(strings.Trim(string(contents), "\n"), "\n")
+	if len(line) != 1 {
+		t.Fatalf("Got %d line of logs, expected %d:\n%+v",
+			len(line), 1, line)
+	}
+	var logline logLine
+	if err := json.Unmarshal([]byte(line[0]), &logline); err != nil {
+		t.Fatalf("Unable to decode JSON log line %q:\n%+v", line[0], err)
+	}
+	if !strings.HasPrefix(logline.Caller, "testing/testing.go") {
+		t.Errorf("log caller should have prefix %q but got %q",
+			"testing/testing.go", logline.Caller)
+	}
 }

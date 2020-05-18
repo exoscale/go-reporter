@@ -82,13 +82,26 @@ func New(config Configuration, additionalHandler log.Handler, prefix string) (lo
 
 	// Initialize the logger
 	var logger = log.New()
+
+	funcHandler := log.FuncHandler(func(r *log.Record) error {
+		return log.MultiHandler(handlers...).Log(r)
+	})
+
+	if config.IncludeCaller {
+		funcHandler = contextHandler(log.MultiHandler(handlers...), prefix)
+	}
+
 	logHandler := log.LvlFilterHandler(
 		log.Lvl(config.Level),
-		contextHandler(log.MultiHandler(handlers...), prefix))
+		funcHandler,
+	)
+
 	if additionalHandler != nil {
 		logHandler = log.MultiHandler(logHandler, additionalHandler)
 	}
+
 	logger.SetHandler(logHandler)
+
 	return logger, nil
 }
 
