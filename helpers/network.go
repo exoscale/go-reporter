@@ -10,7 +10,7 @@ import (
 func IncrementIPv4(ip net.IP, inc int) net.IP {
 	ip = ip.To4()
 	v := binary.BigEndian.Uint32(ip)
-	if v >= 0 {
+	if v >= uint32(0) {
 		v = v + uint32(inc)
 	} else {
 		v = v - uint32(-inc)

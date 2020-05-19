@@ -18,7 +18,7 @@ import (
 
 func TestExpvar(t *testing.T) {
 	tcpPort := rand.Intn(1000) + 22000
-	var configuration Configuration = make([]ExporterConfiguration, 1, 1)
+	var configuration Configuration = make([]ExporterConfiguration, 1)
 	configuration[0] = &ExpvarConfiguration{
 		Listen: config.Addr(fmt.Sprintf("127.0.0.1:%d", tcpPort)),
 	}
@@ -29,7 +29,9 @@ func TestExpvar(t *testing.T) {
 	}
 	m.MustStart()
 	defer func() {
-		m.Stop()
+		if err := m.Stop(); err != nil {
+			t.Fatal(err)
+		}
 		if !testing.Short() {
 			time.Sleep(1 * time.Second) // Slight race condition...
 			resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d/", tcpPort))
@@ -42,7 +44,9 @@ func TestExpvar(t *testing.T) {
 
 	t.Run("root", func(t *testing.T) {
 		c := metrics.NewCounter()
-		m.Registry.Register("foo", c)
+		if err := m.Registry.Register("foo", c); err != nil {
+			t.Fatal(err)
+		}
 		c.Inc(47)
 
 		resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d/", tcpPort))
@@ -98,7 +102,9 @@ func TestExpvar(t *testing.T) {
 		h := metrics.NewHealthcheck(func(h metrics.Healthcheck) {
 			h.Healthy()
 		})
-		m.Registry.Register("bar", h)
+		if err := m.Registry.Register("bar", h); err != nil {
+			t.Fatal(err)
+		}
 		got = slurp(200)
 		expected = healthZDetails{"ok", map[string]string{
 			"bar": "+ok",
@@ -111,7 +117,9 @@ func TestExpvar(t *testing.T) {
 		h = metrics.NewHealthcheck(func(h metrics.Healthcheck) {
 			h.Unhealthy(errors.New("nope"))
 		})
-		m.Registry.Register("zip", h)
+		if err := m.Registry.Register("zip", h); err != nil {
+			t.Fatal(err)
+		}
 		got = slurp(542)
 		expected = healthZDetails{"fail", map[string]string{
 			"bar": "+ok",

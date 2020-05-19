@@ -34,7 +34,7 @@ func TestCollectd(t *testing.T) {
 	defer sock.Close()
 
 	// Initialize collectd exporter
-	var configuration Configuration = make([]ExporterConfiguration, 1, 1)
+	var configuration Configuration = make([]ExporterConfiguration, 1)
 	configuration[0] = &CollectdConfiguration{
 		Connect:  address,
 		Interval: config.Duration(500 * time.Millisecond),
@@ -87,7 +87,7 @@ L:
 	for i := 0; true; i++ {
 		select {
 		case <-deadline:
-			go m.Stop()
+			go m.Stop() // nolint: errcheck
 		case <-deadline2:
 			break L
 		case err := <-socketErr:
