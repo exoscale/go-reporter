@@ -59,7 +59,7 @@ func (m *Metrics) Start() error {
 	// Register exporters
 	for _, c := range m.config {
 		if err := c.initExporter(m); err != nil {
-			m.Stop()
+			m.Stop() // nolint: errcheck
 			return err
 		}
 	}
@@ -84,17 +84,17 @@ func (m *Metrics) Push() error {
 		case *metrics.StandardGauge:
 			g := prometheus.NewGauge(prometheus.GaugeOpts{Name: name})
 			g.Set(float64(metric.Value()))
-			registry.Register(g)
+			registry.Register(g) // nolint: errcheck
 
 		case *metrics.StandardGaugeFloat64:
 			g := prometheus.NewGauge(prometheus.GaugeOpts{Name: name})
 			g.Set(float64(metric.Value()))
-			registry.Register(g)
+			registry.Register(g) // nolint: errcheck
 
 		case *metrics.StandardCounter:
 			c := prometheus.NewCounter(prometheus.CounterOpts{Name: name})
 			c.Add(float64(metric.Count()))
-			registry.Register(c)
+			registry.Register(c) // nolint: errcheck
 		}
 	})
 

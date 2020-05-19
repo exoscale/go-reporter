@@ -22,7 +22,7 @@ func TestFile(t *testing.T) {
 	defer os.RemoveAll(tempDir)
 
 	outputFile := filepath.Join(tempDir, "out.txt")
-	var configuration Configuration = make([]ExporterConfiguration, 1, 1)
+	var configuration Configuration = make([]ExporterConfiguration, 1)
 	configuration[0] = &FileConfiguration{
 		Interval: config.Duration(1 * time.Second),
 		Path:     config.FilePath(outputFile),
@@ -34,12 +34,14 @@ func TestFile(t *testing.T) {
 	}
 	m.MustStart()
 	defer func() {
-		m.Stop()
+		m.Stop() // nolint: errcheck
 	}()
 
 	// Increase some counter
 	c := metrics.NewCounter()
-	m.Registry.Register("foo", c)
+	if err := m.Registry.Register("foo", c); err != nil {
+		t.Fatal(err)
+	}
 	c.Inc(47)
 
 	if testing.Short() {

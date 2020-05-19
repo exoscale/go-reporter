@@ -74,7 +74,7 @@ func NewHTTPClient(config PromPushGWConfiguration) (*http.Client, error) {
 			Certificates: []tls.Certificate{cert},
 			RootCAs:      caCertPool,
 		}
-		tlsConfig.BuildNameToCertificate()
+		tlsConfig.BuildNameToCertificate() // nolint: staticcheck
 		transport = &http.Transport{TLSClientConfig: tlsConfig}
 	}
 

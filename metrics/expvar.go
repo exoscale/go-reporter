@@ -54,8 +54,7 @@ func (c *ExpvarConfiguration) initExporter(metrics *Metrics) error {
 		return errors.Wrapf(err, "unable to listen to %v", address)
 	}
 	metrics.t.Go(func() error {
-		server.Serve(listener)
-		return nil
+		return server.Serve(listener)
 	})
 
 	// Handle stop correctly
@@ -63,8 +62,7 @@ func (c *ExpvarConfiguration) initExporter(metrics *Metrics) error {
 		<-metrics.t.Dying()
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-		server.Shutdown(ctx)
-		return nil
+		return server.Shutdown(ctx)
 	})
 
 	return nil
@@ -101,7 +99,7 @@ func healthZ(registry metrics.Registry) func(http.ResponseWriter, *http.Request)
 			if details.Status == "fail" {
 				w.WriteHeader(542)
 			}
-			w.Write(output)
+			w.Write(output) // nolint: errcheck
 		}
 	}
 }

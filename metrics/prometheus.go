@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/deathowl/go-metrics-prometheus"
+	prometheusmetrics "github.com/deathowl/go-metrics-prometheus"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -68,7 +68,7 @@ func (c *PrometheusConfiguration) initExporter(metrics *Metrics) error {
 		for {
 			select {
 			case <-tick.C:
-				pClient.UpdatePrometheusMetricsOnce()
+				pClient.UpdatePrometheusMetricsOnce() // nolint: errcheck
 			case <-metrics.t.Dying():
 				return nil
 			}
@@ -87,23 +87,23 @@ func (c *PrometheusConfiguration) initExporter(metrics *Metrics) error {
 
 	metrics.t.Go(func() error {
 		if c.CertFile == "" && c.KeyFile == "" && c.CacertFile == "" {
-			server.Serve(listener)
-		} else {
-			cacert, err := ioutil.ReadFile(string(c.CacertFile))
-			if err != nil {
-				return err
-			}
-			certpool := x509.NewCertPool()
-			certpool.AppendCertsFromPEM(cacert)
-
-			tlsConfig := &tls.Config{
-				ClientAuth: tls.RequireAndVerifyClientCert,
-				ClientCAs:  certpool,
-			}
-			server.TLSConfig = tlsConfig
-			server.ServeTLS(listener, string(c.CertFile), string(c.KeyFile))
+			return server.Serve(listener)
 		}
-		return nil
+
+		cacert, err := ioutil.ReadFile(string(c.CacertFile))
+		if err != nil {
+			return err
+		}
+		certpool := x509.NewCertPool()
+		certpool.AppendCertsFromPEM(cacert)
+
+		tlsConfig := &tls.Config{
+			ClientAuth: tls.RequireAndVerifyClientCert,
+			ClientCAs:  certpool,
+		}
+		server.TLSConfig = tlsConfig
+
+		return server.ServeTLS(listener, string(c.CertFile), string(c.KeyFile))
 	})
 
 	// Handle stop correctly
@@ -111,8 +111,7 @@ func (c *PrometheusConfiguration) initExporter(metrics *Metrics) error {
 		<-metrics.t.Dying()
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-		server.Shutdown(ctx)
-		return nil
+		return server.Shutdown(ctx)
 	})
 	return nil
 }

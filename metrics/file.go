@@ -50,13 +50,12 @@ func (c *FileConfiguration) initExporter(m *Metrics) error {
 			select {
 			case <-tick.C:
 				metrics.WriteJSONOnce(m.Registry, output)
-				output.Sync()
+				output.Sync() // nolint: errcheck
 			case <-m.t.Dying():
 				break L
 			}
 		}
-		output.Close()
-		return nil
+		return output.Close()
 	})
 
 	return nil

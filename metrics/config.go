@@ -23,7 +23,7 @@ func (c *Configuration) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		return errors.Wrap(err, "unable to decode list of metric exporters")
 	}
 	// We now have a list of interfaces. Each interface should be a MapSlice.
-	finalConfiguration := make([]ExporterConfiguration, len(rawConfig), len(rawConfig))
+	finalConfiguration := make([]ExporterConfiguration, len(rawConfig))
 	for i, c := range rawConfig {
 		if len(c) != 1 {
 			return errors.Errorf("metric configuration item %d should contain only one element, not %d",
