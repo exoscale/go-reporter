@@ -1,0 +1,15 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Run tests and attempt building
+      run: |
+        export PATH=$(go env GOPATH)/bin:$PATH
+        golangci-lint run .
+        go test -v -race ./...
+        go build

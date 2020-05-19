@@ -1,5 +1,7 @@
 # go-reporter
 
+[![Actions Status](https://github.com/exoscale/go-reporter/workflows/CI/badge.svg)](https://github.com/exoscale/go-reporter/actions?query=workflow%3ACI)
+
 ## Configuration
 
 *go-reporter* is configured through a variable of type `Configuration`.
