@@ -29,9 +29,8 @@ func TestExpvar(t *testing.T) {
 	}
 	m.MustStart()
 	defer func() {
-		if err := m.Stop(); err != nil {
-			t.Fatal(err)
-		}
+		m.Stop() // nolint: errcheck
+
 		if !testing.Short() {
 			time.Sleep(1 * time.Second) // Slight race condition...
 			resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d/", tcpPort))
