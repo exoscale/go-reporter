@@ -8,7 +8,9 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Run golangci-lint
-      uses: actions-contrib/golangci-lint@v1
+      uses: golangci/golangci-lint-action@v1
+      with:
+        version: v1.27
     - name: Run tests and attempt building
       run: |
         export PATH=$(go env GOPATH)/bin:$PATH
