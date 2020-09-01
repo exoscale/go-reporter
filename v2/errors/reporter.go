@@ -43,10 +43,16 @@ func New(config *Config) (*Reporter, error) {
 
 	reporter.Debug("initializing Sentry client")
 
-	reporter.sentry, err = sentry.NewClient(sentry.ClientOptions{
+	sentryOpts := sentry.ClientOptions{
 		Dsn:              config.DSN,
 		AttachStacktrace: true,
-	})
+	}
+
+	if config.Wait {
+		sentryOpts.Transport = &sentry.HTTPSyncTransport{Timeout: sentryFlushTimeout}
+	}
+
+	reporter.sentry, err = sentry.NewClient(sentryOpts)
 	if err != nil {
 		return nil, err
 	}
@@ -72,9 +78,6 @@ func (r *Reporter) LogHandler() log15.Handler {
 		}
 
 		r.sentry.CaptureException(errors.New(rec.Msg), nil, sentryEventFromLogRecord(rec))
-		if r.config.Wait {
-			r.sentry.Flush(sentryFlushTimeout)
-		}
 
 		return nil
 	})
@@ -83,9 +86,6 @@ func (r *Reporter) LogHandler() log15.Handler {
 // SendError sends the specified error to Sentry. If tags is not nil, they will be added to the event.
 func (r *Reporter) SendError(err error, tags map[string]string) {
 	r.sentry.CaptureException(err, nil, sentryEventWithTags(tags))
-	if r.config.Wait {
-		r.sentry.Flush(sentryFlushTimeout)
-	}
 }
 
 // PanicHandler is a function that recovers from a panic and sends an event to Sentry. If a fn function is provided it
@@ -95,10 +95,6 @@ func (r *Reporter) SendError(err error, tags map[string]string) {
 func (r *Reporter) PanicHandler(fn func(interface{})) {
 	if re := recover(); re != nil {
 		r.sentry.Recover(re, nil, sentryEventFromPanic(re))
-
-		if r.config.Wait {
-			r.sentry.Flush(sentryFlushTimeout)
-		}
 
 		if fn != nil {
 			fn(re)
