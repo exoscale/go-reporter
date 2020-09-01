@@ -118,6 +118,7 @@ func (e *Exporter) Stop(_ context.Context) error {
 // Prometheus registry. This method blocks the caller until the exporter's tomb dies.
 func (e *Exporter) registryFlushLoop() error {
 	tick := time.NewTicker(time.Duration(e.config.FlushInterval) * time.Second)
+	defer tick.Stop()
 
 	e.Debug("starting go-metrics flush loop")
 
@@ -126,11 +127,9 @@ func (e *Exporter) registryFlushLoop() error {
 		case <-tick.C:
 			if err := e.pm.UpdatePrometheusMetricsOnce(); err != nil {
 				e.Error("unable to flush go-metrics registry", "err", err)
-				return err
 			}
 
 		case <-e.t.Dying():
-			tick.Stop()
 			e.Debug("terminating go-metrics flush loop")
 			return nil
 		}
