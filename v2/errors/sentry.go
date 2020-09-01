@@ -8,6 +8,8 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	"gopkg.in/inconshreveable/log15.v2"
+
+	"github.com/exoscale/go-reporter/v2/internal/debug"
 )
 
 const sentryFlushTimeout = 5 * time.Second
@@ -125,4 +127,14 @@ func (t *SentryTestTransport) Events() []*sentry.Event {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	return t.events
+}
+
+type sentryDebugWriter struct {
+	d *debug.D
+}
+
+func (w *sentryDebugWriter) Write(p []byte) (n int, err error) {
+	w.d.Debug(string(p))
+
+	return len(p), nil
 }

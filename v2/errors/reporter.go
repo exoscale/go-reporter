@@ -52,6 +52,11 @@ func New(config *Config) (*Reporter, error) {
 		sentryOpts.Transport = &sentry.HTTPSyncTransport{Timeout: sentryFlushTimeout}
 	}
 
+	if config.Debug {
+		sentryOpts.Debug = true
+		sentryOpts.DebugWriter = &sentryDebugWriter{d: reporter.D}
+	}
+
 	reporter.sentry, err = sentry.NewClient(sentryOpts)
 	if err != nil {
 		return nil, err
