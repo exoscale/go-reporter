@@ -115,7 +115,9 @@ func newFileHandler(d *LogDestinationConfig) (log15.Handler, error) {
 		return nil, err
 	}
 
-	return log15.LvlFilterHandler(logLevel, fileHandler), nil
+	return kibanaCompatibleKeysHander(
+		log15.LvlFilterHandler(logLevel, fileHandler),
+	), nil
 }
 
 func newSyslogHandler(d *LogDestinationConfig) (log15.Handler, error) {
@@ -137,7 +139,9 @@ func newSyslogHandler(d *LogDestinationConfig) (log15.Handler, error) {
 		return nil, err
 	}
 
-	return log15.LvlFilterHandler(logLevel, syslogHandler), nil
+	return kibanaCompatibleKeysHander(
+		log15.LvlFilterHandler(logLevel, syslogHandler),
+	), nil
 }
 
 func newConsoleHandler(d *LogDestinationConfig) (log15.Handler, error) {
@@ -147,4 +151,14 @@ func newConsoleHandler(d *LogDestinationConfig) (log15.Handler, error) {
 	}
 
 	return log15.LvlFilterHandler(logLevel, log15.StderrHandler), nil
+}
+
+func kibanaCompatibleKeysHander(h log15.Handler) log15.Handler {
+	return log15.FuncHandler(func(r *log15.Record) error {
+		r.KeyNames.Msg = "message"
+		r.KeyNames.Time = "@timestamp"
+		r.KeyNames.Lvl = "level"
+
+		return h.Log(r)
+	})
 }
